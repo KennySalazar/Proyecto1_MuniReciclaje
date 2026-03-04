@@ -6,6 +6,8 @@ import Rutas from "./pages/Rutas";
 
 import AuthProvider from "./auth/AuthProvider";
 import RequireAuth from "./auth/RequireAuth";
+import Camiones from "./pages/Camiones";
+import Asignaciones from "./pages/Asignaciones";
 
 export default function App() {
   return (
@@ -17,6 +19,8 @@ export default function App() {
           <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
           <Route path="/usuarios" element={<RequireAuth><Usuarios /></RequireAuth>} />
           <Route path="/rutas" element={<RequireAuth><Rutas /></RequireAuth>} />
+          <Route path="/camiones" element={<RequireAuth><Camiones /></RequireAuth>} />
+          <Route path="/asignaciones" element={<RequireAuth><Asignaciones /></RequireAuth>} />
 
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>

@@ -1,15 +1,38 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import api from "../api/axios";
 import MapEditor from "../components/MapEditor";
 import RouteForm from "../components/RouteForm";
 
 export default function Rutas() {
-  const [points, setPoints] = useState([]); // [{lat,lng,orden}]
+  const [points, setPoints] = useState([]);
   const [distanceKm, setDistanceKm] = useState(0);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
 
-  const canSave = useMemo(() => points.length >= 2 && distanceKm >= 0, [points, distanceKm]);
+  const [routes, setRoutes] = useState([]);
+
+  // seleccion de ruta
+  const [selectedRouteId, setSelectedRouteId] = useState("ALL"); 
+  const [showAll, setShowAll] = useState(true);
+
+  const canSave = useMemo(
+    () => points.length >= 2 && distanceKm >= 0,
+    [points, distanceKm]
+  );
+
+  const loadRoutes = async () => {
+    try {
+      const res = await api.get("/rutas");
+      const list = Array.isArray(res.data) ? res.data : (res.data?.data ?? []);
+      setRoutes(list);
+    } catch (e) {
+      console.log("ERROR GET /rutas:", e?.response?.status, e?.response?.data, e);
+    }
+  };
+
+  useEffect(() => {
+    loadRoutes();
+  }, []);
 
   const handleSave = async (form) => {
     if (!canSave) return;
@@ -27,23 +50,45 @@ export default function Rutas() {
       };
 
       await api.post("/rutas", payload);
+
       setMsg("Ruta creada correctamente");
       setTimeout(() => setMsg(""), 2500);
       setPoints([]);
       setDistanceKm(0);
+
+      await loadRoutes();
     } catch (e) {
-        console.log("ERROR /rutas:", e?.response?.status, e?.response?.data, e);
-        if (e?.response?.data?.message?.includes("duplicate key")) {
-            setMsg("Ya existe una ruta con ese nombre.");
-        } else {
-            setMsg(
-            e?.response?.data?.message || "Error guardando la ruta"
-            );
-        }
-        } finally {
+      console.log("ERROR POST /rutas:", e?.response?.status, e?.response?.data, e);
+      const txt = e?.response?.data?.message || "";
+
+      if (
+        txt.includes("duplicate key") ||
+        txt.includes("unique constraint") ||
+        txt.includes("ruta_nombre_key")
+      ) {
+        setMsg("Ya existe una ruta con ese nombre.");
+      } else {
+        setMsg(txt || "Error guardando la ruta");
+      }
+    } finally {
       setSaving(false);
     }
   };
+
+  const handleClear = () => {
+    setPoints([]);
+    setDistanceKm(0);
+    setMsg("");
+  };
+
+  //rutas que se van a dibujar según selección
+  const routesToDraw = useMemo(() => {
+    if (showAll) return routes;
+
+    if (selectedRouteId === "ALL") return [];
+    const idNum = Number(selectedRouteId);
+    return routes.filter((r) => Number(r.id) === idNum);
+  }, [routes, selectedRouteId, showAll]);
 
   return (
     <div style={{ padding: 24, color: "white" }}>
@@ -52,19 +97,68 @@ export default function Rutas() {
         Trazá la ruta con clics en el mapa. Mínimo 2 puntos.
       </p>
 
+      {}
+      <div
+        style={{
+          display: "flex",
+          gap: 12,
+          alignItems: "center",
+          marginBottom: 14,
+          flexWrap: "wrap",
+        }}
+      >
+        <label style={{ opacity: 0.9 }}>Mostrar:</label>
+
+        <label style={{ display: "flex", alignItems: "center", gap: 8, opacity: 0.9 }}>
+          <input
+            type="checkbox"
+            checked={showAll}
+            onChange={(e) => setShowAll(e.target.checked)}
+          />
+          Ver todas
+        </label>
+
+        {!showAll && (
+          <>
+            <label style={{ opacity: 0.9 }}>Ruta:</label>
+            <select
+              value={selectedRouteId}
+              onChange={(e) => setSelectedRouteId(e.target.value)}
+              style={{
+                padding: 10,
+                borderRadius: 10,
+                border: "1px solid rgb(236, 234, 231)",
+                background: "rgba(65, 17, 197, 0.81)",
+                color: "white",
+                outline: "none",
+                minWidth: 260,
+              }}
+            >
+              <option value="ALL">-- Seleccioná una ruta --</option>
+              {routes.map((r) => (
+                <option key={r.id} value={String(r.id)}>
+                  {r.nombre}
+                </option>
+              ))}
+            </select>
+          </>
+        )}
+      </div>
+
       <div style={{ display: "grid", gridTemplateColumns: "360px 1fr", gap: 16 }}>
         <RouteForm
           distanceKm={distanceKm}
           pointsCount={points.length}
           saving={saving}
           onSave={handleSave}
-          onClear={() => { setPoints([]); setDistanceKm(0); }}
+          onClear={handleClear}
         />
 
         <MapEditor
-        points={points}
-        setPoints={setPoints}
-        setDistanceKm={setDistanceKm}
+          points={points}
+          setPoints={setPoints}
+          setDistanceKm={setDistanceKm}
+          routes={routesToDraw} 
         />
       </div>
 

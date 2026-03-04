@@ -85,8 +85,8 @@ export default function RouteForm({ distanceKm, pointsCount, saving, onSave, onC
 
 
 const card = {
-  background: "rgba(255,255,255,0.06)",
-  border: "1px solid rgba(255,255,255,0.10)",
+  background: "rgba(246, 145, 13, 0.06)",
+  border: "1px solid rgba(234, 150, 14, 0.94)",
   borderRadius: 14,
   padding: 14,
 };
@@ -97,8 +97,8 @@ const inp = {
   marginBottom: 10,
   padding: 10,
   borderRadius: 10,
-  border: "1px solid rgba(255,255,255,0.15)",
-  background: "rgba(0,0,0,0.25)",
+  border: "1px solid rgba(243, 240, 236, 0.83)",
+  background: "#ee4b0a",
   color: "white",
   outline: "none",
 };

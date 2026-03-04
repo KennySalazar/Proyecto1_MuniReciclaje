@@ -14,6 +14,8 @@ const menuByRole = {
   COORDINADOR: [
     { label: "Dashboard", to: "/dashboard" },
     { label: "Rutas", to: "/rutas" },
+    { label: "Camiones", to: "/camiones" },
+    { label: "Asignaciones", to: "/asignaciones" },
     { label: "Monitoreo", to: "/monitoreo" },
     { label: "Incidencias", to: "/incidencias" },
     { label: "Reportes", to: "/reportes" },
