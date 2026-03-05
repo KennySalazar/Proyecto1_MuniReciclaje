@@ -8,6 +8,7 @@ import AuthProvider from "./auth/AuthProvider";
 import RequireAuth from "./auth/RequireAuth";
 import Camiones from "./pages/Camiones";
 import Asignaciones from "./pages/Asignaciones";
+import Generacion from "./pages/Generacion";
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
           <Route path="/rutas" element={<RequireAuth><Rutas /></RequireAuth>} />
           <Route path="/camiones" element={<RequireAuth><Camiones /></RequireAuth>} />
           <Route path="/asignaciones" element={<RequireAuth><Asignaciones /></RequireAuth>} />
+          <Route path="/generacion" element={<RequireAuth><Generacion /></RequireAuth>} />
 
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>

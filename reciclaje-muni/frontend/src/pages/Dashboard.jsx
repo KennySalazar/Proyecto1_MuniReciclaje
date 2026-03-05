@@ -16,6 +16,7 @@ const menuByRole = {
     { label: "Rutas", to: "/rutas" },
     { label: "Camiones", to: "/camiones" },
     { label: "Asignaciones", to: "/asignaciones" },
+    { label: "Generación", to: "/generacion" },
     { label: "Monitoreo", to: "/monitoreo" },
     { label: "Incidencias", to: "/incidencias" },
     { label: "Reportes", to: "/reportes" },

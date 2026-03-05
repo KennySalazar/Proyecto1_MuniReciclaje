@@ -6,6 +6,7 @@ use App\Http\Controllers\RutaController;
 use App\Http\Controllers\CamionController;
 use App\Http\Controllers\AsignacionCamionRutaController;
 use App\Http\Controllers\UsuarioController;
+use App\Http\Controllers\GeneracionDinamicaController;
 
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -36,5 +37,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
         Route::patch('/asignaciones/{id}/estado', [AsignacionCamionRutaController::class, 'updateEstado']);
+        Route::get('/generaciones', [GeneracionDinamicaController::class, 'index']);
+        Route::get('/generaciones/{id}', [GeneracionDinamicaController::class, 'show']);
+        Route::post('/generaciones/generar', [GeneracionDinamicaController::class, 'generar']);
     });
 });

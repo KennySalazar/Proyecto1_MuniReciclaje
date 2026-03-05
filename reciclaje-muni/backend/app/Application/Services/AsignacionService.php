@@ -6,10 +6,14 @@ use App\Models\Camion;
 use App\Models\Ruta;
 use App\Models\Usuario;
 use App\Repositories\AsignacionRepository;
+use App\Application\Services\GeneracionDinamicaService;
 
 class AsignacionService
 {
-    public function __construct(private AsignacionRepository $repo) {}
+    public function __construct(
+        private AsignacionRepository $repo,
+        private GeneracionDinamicaService $genService
+    ) {}
 
     public function list()
     {
@@ -29,7 +33,7 @@ class AsignacionService
 
         $camion = Camion::findOrFail($idCamion);
         if ($camion->estado !== 'OPERATIVO') {
-            throw new \Exception("El camión no está OPERATIVO.");
+            throw new \Exception("El camión no esta disponible");
         }
 
         Ruta::findOrFail($idRuta);
@@ -52,6 +56,11 @@ class AsignacionService
             'fecha' => $fecha,
             'estado' => 'PROGRAMADA',
         ]);
+
+        //GENERAR BASURA AUTO
+        $this->genService->generar($asignacion->id);
+
+        return $asignacion;
     }
     public function update($id, array $data)
     {
