@@ -11,6 +11,8 @@ import Asignaciones from "./pages/Asignaciones";
 import Generacion from "./pages/Generacion";
 import Incidencias from "./pages/Incidencias";
 import Monitoreo from "./pages/Monitoreo";
+import Reportes from "./pages/Reportes";
+
 export default function App() {
   return (
     <AuthProvider>
@@ -18,14 +20,23 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
 
-          <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
-          <Route path="/usuarios" element={<RequireAuth><Usuarios /></RequireAuth>} />
-          <Route path="/rutas" element={<RequireAuth><Rutas /></RequireAuth>} />
-          <Route path="/camiones" element={<RequireAuth><Camiones /></RequireAuth>} />
-          <Route path="/asignaciones" element={<RequireAuth><Asignaciones /></RequireAuth>} />
-          <Route path="/generacion" element={<RequireAuth><Generacion/></RequireAuth>} />
-          <Route path="/monitoreo" element={<RequireAuth><Monitoreo/></RequireAuth>} />
-          <Route path="/incidencias" element={<RequireAuth><Incidencias/></RequireAuth>} />
+          <Route
+            element={
+              <RequireAuth>
+                <Dashboard />
+              </RequireAuth>
+            }
+          >
+            <Route path="/dashboard" element={<div />} />
+            <Route path="/usuarios" element={<Usuarios />} />
+            <Route path="/rutas" element={<Rutas />} />
+            <Route path="/camiones" element={<Camiones />} />
+            <Route path="/asignaciones" element={<Asignaciones />} />
+            <Route path="/generacion" element={<Generacion />} />
+            <Route path="/monitoreo" element={<Monitoreo />} />
+            <Route path="/incidencias" element={<Incidencias />} />
+            <Route path="/reportes" element={<Reportes />} />
+          </Route>
 
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>

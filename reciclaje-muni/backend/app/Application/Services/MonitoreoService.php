@@ -148,7 +148,7 @@ class MonitoreoService
             $total = (int)($gen->cantidad_puntos ?? 0);
             if ($total <= 0) throw new \Exception("La generación no tiene puntos.");
 
-            // si estaba PROGRAMADA, pasa a EN_PROCESO y set hora_inicio
+
             if ($rec->estado === 'PROGRAMADA') {
                 DB::table('reciclaje.recoleccion')->where('id', $idRecoleccion)->update([
                     'estado' => 'EN_PROCESO',
@@ -160,7 +160,7 @@ class MonitoreoService
             }
 
 
-            // probabilidad de incidencia 
+            //PROBABILIDAD DE INCIDENCIA 
             $prob = 0.01;
             $saleIncidencia = (lcg_value() < $prob);
 

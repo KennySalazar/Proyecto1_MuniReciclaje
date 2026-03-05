@@ -9,6 +9,7 @@ use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\GeneracionDinamicaController;
 use App\Http\Controllers\RecoleccionController;
 use App\Http\Controllers\MonitoreoController;
+use App\Http\Controllers\ReportesController;
 
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -49,5 +50,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::patch('/recolecciones/{id}/incidencias/{idx}/resolver', [RecoleccionController::class, 'resolverIncidencia']);
         Route::get('/monitoreo/activas', [MonitoreoController::class, 'activas']);
         Route::post('/monitoreo/{id}/simular', [MonitoreoController::class, 'simular']);
+
+        Route::get('/reportes/estados', [ReportesController::class, 'estados']);
+        Route::get('/reportes/basura-por-ruta', [ReportesController::class, 'basuraPorRuta']);
+        Route::get('/reportes/camiones', [ReportesController::class, 'camiones']);
+        Route::get('/reportes/incidencias', [ReportesController::class, 'incidencias']);
+        Route::get('/reportes/eficiencia', [ReportesController::class, 'eficiencia']);
     });
 });

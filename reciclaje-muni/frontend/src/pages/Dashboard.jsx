@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
 
 const menuByRole = {
@@ -48,7 +48,7 @@ export default function Dashboard() {
 
   return (
     <div style={{ display: "flex", minHeight: "100dvh", fontFamily: "system-ui" }}>
-      {/* Sidebar */}
+  
       <aside
         style={{
           width: 240,
@@ -56,6 +56,10 @@ export default function Dashboard() {
           color: "white",
           padding: 20,
           borderRight: "1px solid rgba(255,255,255,0.08)",
+          position: "sticky",
+          top: 0,
+          height: "100dvh",
+          overflowY: "auto",
         }}
       >
         <h3 style={{ marginTop: 0 }}>Panel Municipal</h3>
@@ -81,17 +85,21 @@ export default function Dashboard() {
         </nav>
       </aside>
 
-      {/* Content */}
-      <div style={{ flex: 1, background: "#0f172a", color: "white" }}>
-        {/* Topbar */}
+  
+      <div style={{ flex: 1, background: "#0f172a", color: "white", minWidth: 0 }}>
+       
         <div
           style={{
+            position: "sticky",
+            top: 0,
+            zIndex: 50,
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
             padding: "16px 24px",
             borderBottom: "1px solid rgba(255,255,255,0.1)",
-            background: "linear-gradient(180deg, rgba(17,24,39,0.55), rgba(15,23,42,0))",
+            background: "linear-gradient(180deg, rgba(17,24,39,0.85), rgba(15,23,42,0.65))",
+            backdropFilter: "blur(8px)",
           }}
         >
           <div style={{ fontWeight: 600 }}>
@@ -113,23 +121,27 @@ export default function Dashboard() {
           </button>
         </div>
 
-        {/* Body */}
         <div style={{ padding: 24 }}>
-          <h1 style={{ marginTop: 0 }}>Dashboard</h1>
-          <p style={{ opacity: 0.85 }}>Bienvenido al sistema municipal.</p>
+          <Outlet />
 
-          {/* mini resumen por rol */}
-          {user?.rol === "COORDINADOR" && (
-            <div style={card}>
-              <h3 style={{ marginTop: 0 }}>Acciones del Coordinador</h3>
-              <ul style={{ margin: 0, paddingLeft: 18, opacity: 0.9 }}>
-                <li>Planificación de rutas de recolección</li>
-                <li>Asignación de camiones y conductores</li>
-                <li>Monitoreo en tiempo real de recolección</li>
-                <li>Resolución de incidencias</li>
-                <li>Reportes operativos</li>
-              </ul>
-            </div>
+          {location.pathname === "/dashboard" && (
+            <>
+              <h1 style={{ marginTop: 0 }}>Dashboard</h1>
+              <p style={{ opacity: 0.85 }}>Bienvenido al sistema municipal.</p>
+
+              {user?.rol === "COORDINADOR" && (
+                <div style={card}>
+                  <h3 style={{ marginTop: 0 }}>Acciones del Coordinador</h3>
+                  <ul style={{ margin: 0, paddingLeft: 18, opacity: 0.9 }}>
+                    <li>Planificación de rutas de recolección</li>
+                    <li>Asignación de camiones y conductores</li>
+                    <li>Monitoreo en tiempo real de recolección</li>
+                    <li>Resolución de incidencias</li>
+                    <li>Reportes operativos</li>
+                  </ul>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
