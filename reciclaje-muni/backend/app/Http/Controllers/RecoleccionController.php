@@ -1,0 +1,89 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Application\Services\RecoleccionService;
+use Illuminate\Support\Facades\Auth;
+
+class RecoleccionController extends Controller
+{
+    public function __construct(private RecoleccionService $service) {}
+
+    // POST /recolecciones/iniciar
+    public function iniciar(Request $request)
+    {
+        $data = $request->validate([
+            'id_asignacion' => ['required', 'integer'],
+        ]);
+
+        return response()->json($this->service->iniciar($data['id_asignacion']), 201);
+    }
+
+    // PATCH /recolecciones/{id}/ping
+    public function ping(Request $request, $id)
+    {
+        $data = $request->validate([
+            'lat_actual' => ['nullable', 'numeric'],
+            'lng_actual' => ['nullable', 'numeric'],
+            'punto_actual' => ['nullable', 'integer'],
+        ]);
+
+        return response()->json($this->service->ping($id, $data));
+    }
+
+    // POST /recolecciones/{id}/incidencias
+    public function addIncidencia(Request $request, $id)
+    {
+        $data = $request->validate([
+            'tipo' => ['required', 'string', 'max:50'],
+            'detalle' => ['required', 'string', 'max:300'],
+            'lat' => ['nullable', 'numeric'],
+            'lng' => ['nullable', 'numeric'],
+        ]);
+
+        return response()->json($this->service->agregarIncidencia($id, $data));
+    }
+
+    // PATCH /recolecciones/{id}/finalizar
+    public function finalizar(Request $request, $id)
+    {
+        $data = $request->validate([
+            'estado' => ['required', 'in:COMPLETADA,INCOMPLETA'],
+            'toneladas' => ['required', 'numeric', 'min:0'],
+            'observaciones' => ['nullable', 'string', 'max:300'],
+        ]);
+
+        return response()->json($this->service->finalizar($id, $data));
+    }
+    public function show($id)
+    {
+        return response()->json(\App\Models\Recoleccion::findOrFail($id));
+    }
+
+    public function resolverIncidencia(Request $request, $id, $idx)
+    {
+        $data = $request->validate([
+            'resolucion' => ['required', 'string', 'max:300'],
+        ]);
+
+        $rec = \App\Models\Recoleccion::findOrFail($id);
+        $arr = json_decode($rec->incidencias ?: '[]', true);
+        if (!is_array($arr)) $arr = [];
+
+        if (!isset($arr[(int)$idx])) {
+            return response()->json(['message' => 'Incidencia no existe'], 404);
+        }
+
+        $arr[(int)$idx]['resuelta'] = true;
+        $arr[(int)$idx]['resuelta_en'] = now()->format('Y-m-d H:i:s');
+        $arr[(int)$idx]['resuelta_por'] = optional(Auth::user())->email ?? 'COORDINADOR';
+        $arr[(int)$idx]['resolucion'] = $data['resolucion'];
+
+        $rec->incidencias = json_encode($arr);
+        $rec->updated_at = now();
+        $rec->save();
+
+        return response()->json($rec);
+    }
+}

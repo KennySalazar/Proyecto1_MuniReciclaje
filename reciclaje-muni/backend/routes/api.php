@@ -7,6 +7,8 @@ use App\Http\Controllers\CamionController;
 use App\Http\Controllers\AsignacionCamionRutaController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\GeneracionDinamicaController;
+use App\Http\Controllers\RecoleccionController;
+use App\Http\Controllers\MonitoreoController;
 
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -35,10 +37,17 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/asignaciones/{id}', [AsignacionCamionRutaController::class, 'update']);
         Route::delete('/asignaciones/{id}', [AsignacionCamionRutaController::class, 'destroy']);
 
-
-        Route::patch('/asignaciones/{id}/estado', [AsignacionCamionRutaController::class, 'updateEstado']);
         Route::get('/generaciones', [GeneracionDinamicaController::class, 'index']);
         Route::get('/generaciones/{id}', [GeneracionDinamicaController::class, 'show']);
         Route::post('/generaciones/generar', [GeneracionDinamicaController::class, 'generar']);
+
+        Route::post('/recolecciones/iniciar', [RecoleccionController::class, 'iniciar']);
+        Route::patch('/recolecciones/{id}/ping', [RecoleccionController::class, 'ping']);
+        Route::post('/recolecciones/{id}/incidencias', [RecoleccionController::class, 'addIncidencia']);
+        Route::patch('/recolecciones/{id}/finalizar', [RecoleccionController::class, 'finalizar']);
+        Route::get('/recolecciones/{id}', [RecoleccionController::class, 'show']);
+        Route::patch('/recolecciones/{id}/incidencias/{idx}/resolver', [RecoleccionController::class, 'resolverIncidencia']);
+        Route::get('/monitoreo/activas', [MonitoreoController::class, 'activas']);
+        Route::post('/monitoreo/{id}/simular', [MonitoreoController::class, 'simular']);
     });
 });

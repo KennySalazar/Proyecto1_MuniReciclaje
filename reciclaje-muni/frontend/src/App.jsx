@@ -9,7 +9,8 @@ import RequireAuth from "./auth/RequireAuth";
 import Camiones from "./pages/Camiones";
 import Asignaciones from "./pages/Asignaciones";
 import Generacion from "./pages/Generacion";
-
+import Incidencias from "./pages/Incidencias";
+import Monitoreo from "./pages/Monitoreo";
 export default function App() {
   return (
     <AuthProvider>
@@ -22,7 +23,9 @@ export default function App() {
           <Route path="/rutas" element={<RequireAuth><Rutas /></RequireAuth>} />
           <Route path="/camiones" element={<RequireAuth><Camiones /></RequireAuth>} />
           <Route path="/asignaciones" element={<RequireAuth><Asignaciones /></RequireAuth>} />
-          <Route path="/generacion" element={<RequireAuth><Generacion /></RequireAuth>} />
+          <Route path="/generacion" element={<RequireAuth><Generacion/></RequireAuth>} />
+          <Route path="/monitoreo" element={<RequireAuth><Monitoreo/></RequireAuth>} />
+          <Route path="/incidencias" element={<RequireAuth><Incidencias/></RequireAuth>} />
 
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>

@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import api from "../api/axios";
 
-const ESTADOS_ASIGNACION = ["PROGRAMADA", "EN_PROCESO", "FINALIZADA", "CANCELADA"];
 
 function toISODate(d) {
   if (!d) return "";
@@ -24,7 +23,6 @@ export default function Asignaciones() {
   const [idRuta, setIdRuta] = useState("");
   const [idConductor, setIdConductor] = useState("");
   const [fecha, setFecha] = useState(""); // YYYY-MM-DD
-  const [estado, setEstado] = useState("ACTIVA");
 
   const [editingId, setEditingId] = useState(null);
   const isEditing = useMemo(() => editingId !== null, [editingId]);
@@ -65,7 +63,6 @@ export default function Asignaciones() {
     setIdRuta("");
     setIdConductor("");
     setFecha("");
-    setEstado("ACTIVA");
     setEditingId(null);
   };
 
@@ -74,7 +71,6 @@ export default function Asignaciones() {
     if (!idRuta) return "Seleccioná una ruta";
     if (!idConductor) return "Seleccioná un conductor";
     if (!fecha) return "Seleccioná fecha";
-    if (!ESTADOS_ASIGNACION.includes(estado)) return "Estado inválido";
     return "";
   };
 
@@ -87,13 +83,12 @@ export default function Asignaciones() {
 
     setSaving(true);
     try {
-      const payload = {
-        id_camion: Number(idCamion),
-        id_ruta: Number(idRuta),
-        id_usuario_conductor: Number(idConductor),
-        fecha: toISODate(fecha),
-        estado,
-      };
+        const payload = {
+          id_camion: Number(idCamion),
+          id_ruta: Number(idRuta),
+          id_usuario_conductor: Number(idConductor),
+          fecha: toISODate(fecha),
+        };
 
       if (isEditing) {
         await api.put(`/asignaciones/${editingId}`, payload);
@@ -119,7 +114,6 @@ export default function Asignaciones() {
     setIdRuta(String(x.id_ruta ?? ""));
     setIdConductor(String(x.id_usuario_conductor ?? ""));
     setFecha(String(x.fecha ?? ""));
-    setEstado(x.estado ?? "ACTIVA");
     setMsg("");
   };
 
@@ -201,16 +195,7 @@ export default function Asignaciones() {
               style={inp}
               value={fecha}
               onChange={(e) => setFecha(e.target.value)}
-            />
-
-            <label>Estado</label>
-            <select style={inp} value={estado} onChange={(e) => setEstado(e.target.value)}>
-              {ESTADOS_ASIGNACION.map((x) => (
-                <option key={x} value={x}>
-                  {x}
-                </option>
-              ))}
-            </select>
+            /> 
 
             <button type="submit" disabled={saving} style={btn}>
               {saving ? "Guardando..." : isEditing ? "Actualizar" : "Crear"}

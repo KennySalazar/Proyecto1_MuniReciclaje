@@ -5,6 +5,7 @@ namespace App\Application\Services;
 use App\Models\Camion;
 use App\Models\Ruta;
 use App\Models\Usuario;
+use App\Models\Recoleccion;
 use App\Repositories\AsignacionRepository;
 use App\Application\Services\GeneracionDinamicaService;
 
@@ -49,16 +50,31 @@ class AsignacionService
             throw new \Exception("Ese camión ya tiene una asignación activa en esa fecha.");
         }
 
-        return $this->repo->create([
+        $asignacion = $this->repo->create([
             'id_camion' => $idCamion,
             'id_ruta' => $idRuta,
             'id_usuario_conductor' => $idConductor,
             'fecha' => $fecha,
+            // si querés dejarlo en DB, dejalo PROGRAMADA, pero ya NO lo manipules en front
             'estado' => 'PROGRAMADA',
         ]);
 
-        //GENERAR BASURA AUTO
-        $this->genService->generar($asignacion->id);
+        //2) crear recolección programada (esto es lo que hará que aparezca en monitoreo)
+        Recoleccion::firstOrCreate(
+            ['id_asignacion_camion_ruta' => $asignacion->id],
+            [
+                'estado' => 'PROGRAMADA',
+                'hora_inicio' => null,
+                'hora_fin' => null,
+                'id_basura' => null,
+                'observaciones' => null,
+                'incidencias' => '[]',
+                'lat_actual' => null,
+                'lng_actual' => null,
+                'punto_actual' => 0,
+                'updated_at' => now(),
+            ]
+        );
 
         return $asignacion;
     }
