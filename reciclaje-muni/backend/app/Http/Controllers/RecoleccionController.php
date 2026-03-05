@@ -10,7 +10,7 @@ class RecoleccionController extends Controller
 {
     public function __construct(private RecoleccionService $service) {}
 
-    // POST /recolecciones/iniciar
+
     public function iniciar(Request $request)
     {
         $data = $request->validate([
@@ -20,7 +20,7 @@ class RecoleccionController extends Controller
         return response()->json($this->service->iniciar($data['id_asignacion']), 201);
     }
 
-    // PATCH /recolecciones/{id}/ping
+
     public function ping(Request $request, $id)
     {
         $data = $request->validate([
@@ -32,7 +32,7 @@ class RecoleccionController extends Controller
         return response()->json($this->service->ping($id, $data));
     }
 
-    // POST /recolecciones/{id}/incidencias
+
     public function addIncidencia(Request $request, $id)
     {
         $data = $request->validate([
@@ -45,7 +45,7 @@ class RecoleccionController extends Controller
         return response()->json($this->service->agregarIncidencia($id, $data));
     }
 
-    // PATCH /recolecciones/{id}/finalizar
+
     public function finalizar(Request $request, $id)
     {
         $data = $request->validate([
@@ -71,16 +71,32 @@ class RecoleccionController extends Controller
         $arr = json_decode($rec->incidencias ?: '[]', true);
         if (!is_array($arr)) $arr = [];
 
-        if (!isset($arr[(int)$idx])) {
+        $i = (int)$idx;
+        if (!isset($arr[$i])) {
             return response()->json(['message' => 'Incidencia no existe'], 404);
         }
 
-        $arr[(int)$idx]['resuelta'] = true;
-        $arr[(int)$idx]['resuelta_en'] = now()->format('Y-m-d H:i:s');
-        $arr[(int)$idx]['resuelta_por'] = optional(Auth::user())->email ?? 'COORDINADOR';
-        $arr[(int)$idx]['resolucion'] = $data['resolucion'];
+        $arr[$i]['resuelta'] = true;
+        $arr[$i]['resuelta_en'] = now()->format('Y-m-d H:i:s');
+        $arr[$i]['resuelta_por'] = optional(\Illuminate\Support\Facades\Auth::user())->email ?? 'COORDINADOR';
+        $arr[$i]['resolucion'] = $data['resolucion'];
 
         $rec->incidencias = json_encode($arr);
+
+        $hayBloqueantePend = false;
+        foreach ($arr as $inc) {
+            if (!empty($inc['bloqueante']) && empty($inc['resuelta'])) {
+                $hayBloqueantePend = true;
+                break;
+            }
+        }
+
+        if (!$hayBloqueantePend && $rec->estado === 'INCOMPLETA') {
+            $rec->estado = 'EN_PROCESO';
+
+            if (!$rec->hora_inicio) $rec->hora_inicio = now();
+        }
+
         $rec->updated_at = now();
         $rec->save();
 

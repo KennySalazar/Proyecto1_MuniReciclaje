@@ -1,51 +1,28 @@
 import { useEffect, useMemo, useState } from "react";
 import api from "../api/axios";
 
-const TIPOS = [
-  "LLUVIA",
-  "TRAFICO",
-  "CAMINO_CERRADO",
-  "CAMION_AVERIADO",
-  "BLOQUEO",
-  "ACCIDENTE",
-  "FALTA_COMBUSTIBLE",
-  "OTRA",
-];
-
-function pick(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
-
-function nowISO() {
-  // YYYY-MM-DD HH:mm:ss
-  const d = new Date();
-  const pad = (n) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(
-    d.getHours()
-  )}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-}
 
 export default function Incidencias() {
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState("");
-  const [activas, setActivas] = useState([]); // del monitoreo
-  const [recs, setRecs] = useState({}); // id_recoleccion -> recoleccion completo
+  const [activas, setActivas] = useState([]);
+  const [recs, setRecs] = useState({});
   const [saving, setSaving] = useState(false);
 
   const load = async () => {
     setMsg("");
     try {
-      // 1) traer recolecciones activas
+      
       const m = await api.get("/monitoreo/activas");
       const list = m.data?.data ?? m.data ?? [];
       setActivas(Array.isArray(list) ? list : []);
 
-      // 2) traer detalle (incidencias) por cada activa
+     
       const ids = (Array.isArray(list) ? list : [])
         .map((x) => x.id_recoleccion)
         .filter(Boolean);
 
-      // si no hay activas, limpiar
+      
       if (ids.length === 0) {
         setRecs({});
         return;
@@ -74,7 +51,6 @@ export default function Incidencias() {
     return () => clearInterval(t);
   }, []);
 
-  // aplanar incidencias
   const rows = useMemo(() => {
     const out = [];
     for (const a of activas) {
@@ -109,7 +85,6 @@ export default function Incidencias() {
       });
     }
 
-    // orden: primero no resueltas, luego más recientes
     out.sort((x, y) => {
       if (x.resuelta !== y.resuelta) return x.resuelta ? 1 : -1;
       return String(y.fecha).localeCompare(String(x.fecha));
@@ -135,44 +110,6 @@ export default function Incidencias() {
     }
   };
 
-  const simular = async () => {
-    // crea random sobre una recolección activa (si existe)
-    if (!activas.length) return setMsg("No hay recolecciones activas para simular.");
-    setSaving(true);
-    setMsg("");
-
-    try {
-      const a = pick(activas);
-      const tipo = pick(TIPOS);
-      const detalle = pick([
-        "Retraso por tráfico",
-        "Lluvia fuerte en la zona",
-        "Calle cerrada por obra municipal",
-        "Camión con problema mecánico",
-        "Bloqueo temporal",
-        "Accidente cercano a la ruta",
-        "Falta de combustible, se detuvo el avance",
-      ]);
-
-      // opcional: usar última ubicación del monitoreo si viene
-      await api.post(`/recolecciones/${a.id_recoleccion}/incidencias`, {
-        tipo,
-        detalle,
-        lat: a.ubicacion?.lat ?? null,
-        lng: a.ubicacion?.lng ?? null,
-        fecha: nowISO(),
-      });
-
-      setMsg("Incidencia simulada");
-      await load();
-      setTimeout(() => setMsg(""), 1500);
-    } catch (err) {
-      setMsg(err?.response?.data?.message || "No se pudo simular la incidencia");
-    } finally {
-      setSaving(false);
-    }
-  };
-
   return (
     <div style={{ padding: 24, color: "white" }}>
       <h1 style={{ marginTop: 0 }}>Incidencias</h1>
@@ -181,13 +118,6 @@ export default function Incidencias() {
       </p>
 
       <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 14 }}>
-        <button onClick={load} style={btn2} disabled={saving}>
-          Refrescar
-        </button>
-
-        <button onClick={simular} style={btnWarn} disabled={saving}>
-          {saving ? "Procesando..." : "Simular incidencia random"}
-        </button>
 
         {msg && <div style={{ opacity: 0.95 }}>{msg}</div>}
       </div>
@@ -272,7 +202,7 @@ function IncRow({ x, disabled, onResolver }) {
           <div style={{ opacity: 0.9 }}>
             <div>{x.resolucion || "—"}</div>
             <div style={{ opacity: 0.7, fontSize: 12 }}>
-              {x.resuelta_en ? `📌 ${x.resuelta_en}` : ""}
+              {x.resuelta_en ? ` ${x.resuelta_en}` : ""}
             </div>
           </div>
         ) : (
@@ -280,7 +210,7 @@ function IncRow({ x, disabled, onResolver }) {
             value={res}
             onChange={(e) => setRes(e.target.value)}
             style={inpMini}
-            placeholder="Escribí la resolución..."
+            placeholder="Escribe la resolución..."
           />
         )}
       </td>
@@ -304,7 +234,7 @@ function IncRow({ x, disabled, onResolver }) {
 
 const card = {
   background: "rgba(255,255,255,0.06)",
-  border: "1px solid rgba(255,255,255,0.10)",
+  border: "1px solid rgba(234, 8, 8, 0.85)",
   borderRadius: 14,
   padding: 14,
 };
@@ -317,35 +247,16 @@ const table = {
 const th = {
   textAlign: "left",
   padding: "10px 8px",
-  borderBottom: "1px solid rgba(255,255,255,0.12)",
+  borderBottom: "1px solid rgba(199, 243, 8, 0.85)",
   fontSize: 13,
   opacity: 0.9,
 };
 
 const td = {
   padding: "10px 8px",
-  borderBottom: "1px solid rgba(255,255,255,0.08)",
+  borderBottom: "1px solid rgba(241, 172, 10, 0.95)",
   fontSize: 13,
   verticalAlign: "top",
-};
-
-const btn2 = {
-  padding: "10px 14px",
-  borderRadius: 12,
-  border: "1px solid rgba(255,255,255,0.2)",
-  background: "transparent",
-  color: "white",
-  cursor: "pointer",
-};
-
-const btnWarn = {
-  padding: "10px 14px",
-  borderRadius: 12,
-  border: "1px solid rgba(245,158,11,0.55)",
-  background: "rgba(245,158,11,0.14)",
-  color: "white",
-  cursor: "pointer",
-  fontWeight: 800,
 };
 
 const inpMini = {

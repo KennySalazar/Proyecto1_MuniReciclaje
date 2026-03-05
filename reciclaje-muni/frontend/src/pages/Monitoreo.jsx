@@ -3,9 +3,6 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import api from "../api/axios";
 
-// ======================
-// ICONOS (sin imágenes)
-// ======================
 const makeDivIcon = (emoji, bg) =>
   L.divIcon({
     className: "custom-div-icon",
@@ -35,7 +32,6 @@ export default function Monitoreo() {
   const [items, setItems] = useState([]);
   const [selected, setSelected] = useState(null);
 
-  // para “Auto Simular”
   const [auto, setAuto] = useState(false);
   const autoRef = useRef(null);
 
@@ -47,7 +43,6 @@ export default function Monitoreo() {
       const arr = Array.isArray(data) ? data : [];
       setItems(arr);
 
-      // refrescar el selected con data nueva (para que cambie lat/lng y progreso)
       if (keepSelected && selected) {
         const fresh = arr.find((x) => x.id_recoleccion === selected.id_recoleccion);
         if (fresh) setSelected(fresh);
@@ -63,10 +58,8 @@ export default function Monitoreo() {
     load(false);
     const t = setInterval(() => load(true), 3000);
     return () => clearInterval(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // auto-simulación
   useEffect(() => {
     if (!auto || !selected) {
       if (autoRef.current) clearInterval(autoRef.current);
@@ -88,7 +81,6 @@ export default function Monitoreo() {
       if (autoRef.current) clearInterval(autoRef.current);
       autoRef.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [auto, selected]);
 
   const rows = useMemo(() => {
@@ -98,12 +90,12 @@ export default function Monitoreo() {
   }, [items]);
 
   const center = useMemo(() => {
-    const def = [14.6349, -90.5069]; // Guate City
+    const def = [14.8347, -91.5180]; 
     const lat = Number(selected?.ubicacion?.lat);
     const lng = Number(selected?.ubicacion?.lng);
     if (Number.isFinite(lat) && Number.isFinite(lng)) return [lat, lng];
 
-    // fallback: si no hay ubicación del camión, centramos por primer punto
+    
     const p0 = selected?.puntos?.[0];
     const plat = Number(p0?.lat);
     const plng = Number(p0?.lng);
@@ -127,7 +119,7 @@ export default function Monitoreo() {
         <div style={card}>
           <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center" }}>
             <h3 style={{ marginTop: 0, marginBottom: 0 }}>Recolecciones activas</h3>
-            <button onClick={() => load(true)} style={btn2}>Refrescar</button>
+            
           </div>
 
           {loading ? (
@@ -210,7 +202,7 @@ export default function Monitoreo() {
                 attribution="&copy; OpenStreetMap contributors"
               />
 
-              {/* 1) PUNTOS DE BASURA */}
+              {/*PUNTOS DE BASURA */}
               {selected?.puntos?.map((p) => {
                 const done = Number(p.orden) <= Number(selected?.progreso?.punto_actual ?? 0);
                 const icon = done ? ICON_DONE : ICON_BAG;
@@ -226,13 +218,13 @@ export default function Monitoreo() {
                       <br />
                       {p.peso_kg} kg
                       <br />
-                      {done ? "✅ Recolectado" : "⏳ Pendiente"}
+                      {done ? "Recolectado" : "Pendiente"}
                     </Popup>
                   </Marker>
                 );
               })}
 
-              {/* 2) CAMIÓN */}
+              {/*CAMIÓN */}
               {selected && isValidCoord(selected?.ubicacion?.lat, selected?.ubicacion?.lng) && (
                 <Marker
                   position={[
@@ -333,7 +325,7 @@ function EstadoBadge({ estado }) {
 
 const card = {
   background: "rgba(255,255,255,0.06)",
-  border: "1px solid rgba(255,255,255,0.10)",
+  border: "1px solid rgba(230, 8, 8, 0.82)",
   borderRadius: 14,
   padding: 14,
 };
@@ -347,26 +339,19 @@ const table = {
 const th = {
   textAlign: "left",
   padding: "10px 8px",
-  borderBottom: "1px solid rgba(255,255,255,0.12)",
+  borderBottom: "1px solid rgba(147, 232, 11, 0.94)",
   fontSize: 13,
   opacity: 0.9,
 };
 
 const td = {
   padding: "10px 8px",
-  borderBottom: "1px solid rgba(255,255,255,0.08)",
+  borderBottom: "1px solid rgba(245, 162, 7, 0.94)",
   fontSize: 13,
   verticalAlign: "top",
 };
 
-const btn2 = {
-  padding: "10px 14px",
-  borderRadius: 12,
-  border: "1px solid rgba(255,255,255,0.2)",
-  background: "transparent",
-  color: "white",
-  cursor: "pointer",
-};
+
 
 const miniBtn = {
   padding: "8px 10px",

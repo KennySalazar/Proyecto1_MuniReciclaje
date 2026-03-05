@@ -8,6 +8,7 @@ use App\Models\Usuario;
 use App\Models\Recoleccion;
 use App\Repositories\AsignacionRepository;
 use App\Application\Services\GeneracionDinamicaService;
+use Illuminate\Support\Facades\DB;
 
 class AsignacionService
 {
@@ -18,7 +19,33 @@ class AsignacionService
 
     public function list()
     {
-        return $this->repo->all();
+        // ✅ Enriquecido para el combobox (nombre ruta + placa + capacidad)
+        return DB::table('reciclaje.asignacion_camion_ruta as a')
+            ->join('reciclaje.ruta as r', 'r.id', '=', 'a.id_ruta')
+            ->join('reciclaje.camion as c', 'c.id', '=', 'a.id_camion')
+            ->leftJoin('reciclaje.usuario as u', 'u.id', '=', 'a.id_usuario_conductor') // si no tenés esta tabla, podés borrar este join
+            ->select([
+                'a.id',
+                'a.id_camion',
+                'a.id_ruta',
+                'a.id_usuario_conductor',
+                'a.fecha',
+                'a.estado',
+
+                // ruta
+                'r.nombre as ruta_nombre',
+
+                // camion
+                'c.placa as camion_placa',
+                'c.capacidad_carga as camion_capacidad',  // ⚠️ si tu columna se llama distinto, cambiala aquí
+                'c.estado as camion_estado',
+
+                // conductor (opcional)
+                DB::raw("COALESCE(u.nombre, '') as conductor_nombre"),
+            ])
+            ->orderBy('a.fecha', 'desc')
+            ->orderBy('a.id', 'desc')
+            ->get();
     }
 
     public function create(array $data)
@@ -55,11 +82,8 @@ class AsignacionService
             'id_ruta' => $idRuta,
             'id_usuario_conductor' => $idConductor,
             'fecha' => $fecha,
-            // si querés dejarlo en DB, dejalo PROGRAMADA, pero ya NO lo manipules en front
             'estado' => 'PROGRAMADA',
         ]);
-
-        //2) crear recolección programada (esto es lo que hará que aparezca en monitoreo)
         Recoleccion::firstOrCreate(
             ['id_asignacion_camion_ruta' => $asignacion->id],
             [

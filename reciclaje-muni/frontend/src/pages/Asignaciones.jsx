@@ -259,7 +259,7 @@ export default function Asignaciones() {
 
 const card = {
   background: "rgba(255,255,255,0.06)",
-  border: "1px solid rgba(255,255,255,0.10)",
+  border: "1px solid rgba(228, 5, 5, 0.93)",
   borderRadius: 14,
   padding: 14,
 };

@@ -67,7 +67,7 @@ class GeneracionDinamicaService
         //generamos los puntos de basura
         $puntos = $this->generarPuntosEnPolyline($coords->toArray(), $cantidadPuntos);
 
-        //
+
         $factorDens = match ($densidad) {
             'RESIDENCIAL' => 1.00,
             'COMERCIAL' => 1.10,

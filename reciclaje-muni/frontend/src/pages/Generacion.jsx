@@ -120,7 +120,7 @@ const center = puntos.length
 
 const card = {
   background: "rgba(255,255,255,0.06)",
-  border: "1px solid rgba(255,255,255,0.10)",
+  border: "1px solid rgba(240, 6, 6, 0.88)",
   borderRadius: 14,
   padding: 14,
 };
@@ -131,8 +131,8 @@ const inp = {
   marginBottom: 10,
   padding: 10,
   borderRadius: 10,
-  border: "1px solid rgba(255,255,255,0.15)",
-  background: "rgba(0,0,0,0.25)",
+  border: "1px solid rgba(246, 243, 243, 0.95)",
+   background: "#ee4b0a",
   color: "white",
   outline: "none",
 };

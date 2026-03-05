@@ -204,7 +204,7 @@ export default function Camiones() {
 
 const card = {
   background: "rgba(255,255,255,0.06)",
-  border: "1px solid rgba(255,255,255,0.10)",
+  border: "1px solid rgba(236, 11, 11, 0.88)",
   borderRadius: 14,
   padding: 14,
 };

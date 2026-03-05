@@ -6,11 +6,6 @@ use Illuminate\Support\Facades\DB;
 
 class MonitoreoService
 {
-    /**
-     * "Activas" = EN_PROCESO o PROGRAMADA (si querés ver las que aún no inician).
-     * Si querés solo camiones andando: dejá solo EN_PROCESO.
-     */
-
     public function activas()
     {
         $rows = DB::table('reciclaje.recoleccion as r')
@@ -19,7 +14,6 @@ class MonitoreoService
             ->join('reciclaje.ruta as ru', 'ru.id', '=', 'a.id_ruta')
             ->leftJoin('reciclaje.generacion_dinamica as g', 'g.id_asignacion_camion_ruta', '=', 'a.id')
             ->leftJoin('reciclaje.basura as b', 'b.id', '=', 'r.id_basura')
-            // ✅ AHORA INCLUYE FINALIZADAS E INCOMPLETAS
             ->whereIn('r.estado', ['PROGRAMADA', 'EN_PROCESO', 'COMPLETADA', 'INCOMPLETA'])
             ->orderBy('r.updated_at', 'desc')
             ->select([
@@ -55,16 +49,15 @@ class MonitoreoService
             $actual = (int)($x->punto_actual ?? 0);
             $pct = ($total > 0) ? round(min(100, max(0, ($actual / $total) * 100)), 1) : 0;
 
-            // ✅ ubicación fallback: primer punto de la generación
             $lat = $x->lat_actual;
             $lng = $x->lng_actual;
 
             if (($lat === null || $lng === null) && $x->id_asignacion) {
-                $p0 = DB::table('reciclaje.generacion_punto')
-                    ->join('reciclaje.generacion_dinamica as gd', 'gd.id', '=', 'reciclaje.generacion_punto.id_generacion_dinamica')
+                $p0 = DB::table('reciclaje.generacion_punto as gp')
+                    ->join('reciclaje.generacion_dinamica as gd', 'gd.id', '=', 'gp.id_generacion_dinamica')
                     ->where('gd.id_asignacion_camion_ruta', $x->id_asignacion)
-                    ->orderBy('reciclaje.generacion_punto.orden', 'asc')
-                    ->first(['reciclaje.generacion_punto.lat', 'reciclaje.generacion_punto.lng']);
+                    ->orderBy('gp.orden', 'asc')
+                    ->first(['gp.lat', 'gp.lng']);
 
                 if ($p0) {
                     $lat = $p0->lat;
@@ -78,7 +71,6 @@ class MonitoreoService
                 ->orderBy('gp.orden', 'asc')
                 ->get(['gp.id', 'gp.lat', 'gp.lng', 'gp.peso_kg', 'gp.orden']);
 
-            // incidencias
             $incsArr = [];
             try {
                 $incsArr = json_decode($x->incidencias ?: '[]', true);
@@ -86,6 +78,10 @@ class MonitoreoService
             } catch (\Throwable $e) {
                 $incsArr = [];
             }
+
+            $bloqueantesPend = array_values(array_filter($incsArr, function ($i) {
+                return !empty($i['bloqueante']) && empty($i['resuelta']);
+            }));
 
             return [
                 'id_recoleccion' => $x->id_recoleccion,
@@ -95,8 +91,9 @@ class MonitoreoService
                 'hora_fin' => $x->hora_fin,
                 'toneladas_reales' => $x->toneladas_reales,
                 'observaciones' => $x->observaciones,
+
                 'incidencias_count' => count($incsArr),
-                'incidencias' => $incsArr,
+                'incidencias_bloqueantes_pend' => count($bloqueantesPend),
 
                 'ruta' => ['id' => $x->ruta_id, 'nombre' => $x->ruta_nombre],
                 'camion' => ['id' => $x->camion_id, 'placa' => $x->camion_placa],
@@ -117,9 +114,6 @@ class MonitoreoService
         return $mapped;
     }
 
-
-
-
     public function show(int $idRecoleccion)
     {
         return DB::table('reciclaje.recoleccion')
@@ -138,10 +132,17 @@ class MonitoreoService
 
             if (!$rec) throw new \Exception("Recolección no existe");
 
+
+            if (in_array($rec->estado, ['COMPLETADA'])) return $rec;
+
+
+            if ($rec->estado === 'INCOMPLETA') {
+                throw new \Exception("Recolección pausada por incidencias. Resolve la incidencia para continuar.");
+            }
+
             // traer asignación + generación
             $asig = DB::table('reciclaje.asignacion_camion_ruta')->where('id', $rec->id_asignacion_camion_ruta)->first();
             $gen  = DB::table('reciclaje.generacion_dinamica')->where('id_asignacion_camion_ruta', $asig->id)->first();
-
             if (!$gen) throw new \Exception("No hay generación dinámica para esta asignación.");
 
             $total = (int)($gen->cantidad_puntos ?? 0);
@@ -154,39 +155,85 @@ class MonitoreoService
                     'hora_inicio' => $rec->hora_inicio ?: now(),
                     'updated_at' => now(),
                 ]);
-
-                // refrescar $rec local
                 $rec->estado = 'EN_PROCESO';
                 $rec->hora_inicio = $rec->hora_inicio ?: now();
             }
 
-            // si ya terminó, no hacemos nada
-            if (in_array($rec->estado, ['COMPLETADA', 'INCOMPLETA'])) {
-                return $rec;
+
+            // probabilidad de incidencia 
+            $prob = 0.01;
+            $saleIncidencia = (lcg_value() < $prob);
+
+
+            $catalogo = [
+                ['tipo' => 'TRAFICO', 'bloqueante' => false, 'detalle' => 'Tráfico fuerte, avance lento'],
+                ['tipo' => 'LLUVIA', 'bloqueante' => false, 'detalle' => 'Lluvia fuerte en la zona'],
+                ['tipo' => 'ACCIDENTE', 'bloqueante' => false, 'detalle' => 'Accidente cerca de la ruta, desvío temporal'],
+                ['tipo' => 'CAMINO_CERRADO', 'bloqueante' => true, 'detalle' => 'Calle cerrada por obra municipal'],
+                ['tipo' => 'BLOQUEO', 'bloqueante' => true, 'detalle' => 'Bloqueo temporal en el acceso'],
+                ['tipo' => 'FALTA_COMBUSTIBLE', 'bloqueante' => true, 'detalle' => 'Falta combustible, el camión se detuvo'],
+                ['tipo' => 'CAMION_AVERIADO', 'bloqueante' => true, 'detalle' => 'Problema mecánico, requiere revisión'],
+            ];
+
+            $incs = json_decode($rec->incidencias ?: '[]', true);
+            if (!is_array($incs)) $incs = [];
+
+            if ($saleIncidencia) {
+                $pick = $catalogo[(int)floor(lcg_value() * count($catalogo))];
+
+                $yaHayBloqueante = false;
+                foreach ($incs as $i) {
+                    if (!empty($i['bloqueante']) && empty($i['resuelta'])) {
+                        $yaHayBloqueante = true;
+                        break;
+                    }
+                }
+
+                if ($yaHayBloqueante && $pick['bloqueante']) {
+
+                    $pick = ['tipo' => 'TRAFICO', 'bloqueante' => false, 'detalle' => 'Demora leve por tráfico'];
+                }
+
+                $incs[] = [
+                    'tipo' => $pick['tipo'],
+                    'detalle' => $pick['detalle'],
+                    'fecha' => now()->format('Y-m-d H:i:s'),
+                    'lat' => $rec->lat_actual,
+                    'lng' => $rec->lng_actual,
+                    'bloqueante' => $pick['bloqueante'],
+                    'resuelta' => false,
+                ];
+
+                // guardar incidencia
+                DB::table('reciclaje.recoleccion')->where('id', $idRecoleccion)->update([
+                    'incidencias' => json_encode($incs),
+                    'updated_at' => now(),
+                ]);
+
+
+                if ($pick['bloqueante']) {
+                    DB::table('reciclaje.recoleccion')->where('id', $idRecoleccion)->update([
+                        'estado' => 'INCOMPLETA',
+                        'updated_at' => now(),
+                    ]);
+
+                    return DB::table('reciclaje.recoleccion')->where('id', $idRecoleccion)->first();
+                }
             }
+
 
             $actual = (int)($rec->punto_actual ?? 0);
             $next = min($total, $actual + 1);
 
-            // buscar coordenada del punto next
+
             $punto = DB::table('reciclaje.generacion_punto')
                 ->where('id_generacion_dinamica', $gen->id)
                 ->where('orden', $next)
                 ->first();
 
-            // si no existe exacto por orden, tomamos el siguiente disponible
-            if (!$punto) {
-                $punto = DB::table('reciclaje.generacion_punto')
-                    ->where('id_generacion_dinamica', $gen->id)
-                    ->orderBy('orden')
-                    ->skip(max(0, $next - 1))
-                    ->first();
-            }
-
             $lat = $punto?->lat ?? $rec->lat_actual;
             $lng = $punto?->lng ?? $rec->lng_actual;
 
-            // actualizar avance + ubicación
             DB::table('reciclaje.recoleccion')->where('id', $idRecoleccion)->update([
                 'punto_actual' => $next,
                 'lat_actual' => $lat,
@@ -194,13 +241,12 @@ class MonitoreoService
                 'updated_at' => now(),
             ]);
 
-            // ✅ si llegó al final -> FINALIZAR AUTOMÁTICO
+
             if ($next >= $total) {
-                // toneladas reales: podés usar estimado o un random cercano
-                $ton = round(((float)$gen->total_basura / 1000) * (0.90 + (lcg_value() * 0.20)), 2); // 90% - 110%
+                $ton = round(((float)$gen->total_basura / 1000) * (0.90 + (lcg_value() * 0.20)), 2);
 
                 $idBasura = DB::table('reciclaje.basura')->insertGetId([
-                    'tipo_basura' => 'MIXTA', // si querés, lo derivamos de ruta->tipo_residuo
+                    'tipo_basura' => 'MIXTA',
                     'peso_toneladas' => $ton,
                 ]);
 
