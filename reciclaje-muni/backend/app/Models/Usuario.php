@@ -9,7 +9,7 @@ class Usuario extends Authenticatable
 {
     use HasApiTokens;
 
-    protected $table = 'usuario';
+    protected $table = 'reciclaje.usuario';
     public $timestamps = false;
 
     protected $fillable = ['id_rol', 'id_ciudadano', 'nombre', 'email', 'password_hash'];

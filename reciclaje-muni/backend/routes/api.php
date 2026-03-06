@@ -10,6 +10,7 @@ use App\Http\Controllers\GeneracionDinamicaController;
 use App\Http\Controllers\RecoleccionController;
 use App\Http\Controllers\MonitoreoController;
 use App\Http\Controllers\ReportesController;
+use App\Http\Controllers\PuntoReciclajeController;
 
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -56,5 +57,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/reportes/camiones', [ReportesController::class, 'camiones']);
         Route::get('/reportes/incidencias', [ReportesController::class, 'incidencias']);
         Route::get('/reportes/eficiencia', [ReportesController::class, 'eficiencia']);
+    });
+
+    Route::middleware(['role:OPERADOR'])->group(function () {
+        Route::get('/puntos-verdes', [PuntoReciclajeController::class, 'index']);
+        Route::post('/puntos-verdes', [PuntoReciclajeController::class, 'store']);
+        Route::put('/puntos-verdes/{id}', [PuntoReciclajeController::class, 'update']);
+        Route::delete('/puntos-verdes/{id}', [PuntoReciclajeController::class, 'destroy']);
+        Route::get('/usuarios/operadores', [UsuarioController::class, 'operadores']);
     });
 });

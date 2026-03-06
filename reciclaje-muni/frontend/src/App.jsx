@@ -12,6 +12,7 @@ import Generacion from "./pages/Generacion";
 import Incidencias from "./pages/Incidencias";
 import Monitoreo from "./pages/Monitoreo";
 import Reportes from "./pages/Reportes";
+import PuntosVerdes from "./pages/PuntosVerdes";
 
 export default function App() {
   return (
@@ -36,6 +37,8 @@ export default function App() {
             <Route path="/monitoreo" element={<Monitoreo />} />
             <Route path="/incidencias" element={<Incidencias />} />
             <Route path="/reportes" element={<Reportes />} />
+
+            <Route path="/puntos-verdes" element={<PuntosVerdes />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/login" replace />} />
