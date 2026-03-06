@@ -11,6 +11,12 @@ use App\Http\Controllers\RecoleccionController;
 use App\Http\Controllers\MonitoreoController;
 use App\Http\Controllers\ReportesController;
 use App\Http\Controllers\PuntoReciclajeController;
+use App\Http\Controllers\TipoMaterialController;
+use App\Http\Controllers\ContenedorController;
+use App\Http\Controllers\MaterialReciclajeController;
+use App\Http\Controllers\VaciadoProgramadoController;
+use App\Http\Controllers\NotificacionEstadoController;
+
 
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -65,5 +71,16 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/puntos-verdes/{id}', [PuntoReciclajeController::class, 'update']);
         Route::delete('/puntos-verdes/{id}', [PuntoReciclajeController::class, 'destroy']);
         Route::get('/usuarios/operadores', [UsuarioController::class, 'operadores']);
+        Route::get('/tipos-material', [TipoMaterialController::class, 'index']);
+        Route::get('/contenedores', [ContenedorController::class, 'index']);
+
+        Route::get('/entregas-reciclaje', [MaterialReciclajeController::class, 'index']);
+        Route::post('/entregas-reciclaje', [MaterialReciclajeController::class, 'store']);
+
+        Route::get('/notificaciones-contenedor', [NotificacionEstadoController::class, 'index']);
+        Route::patch('/notificaciones-contenedor/{id}/leer', [NotificacionEstadoController::class, 'marcarLeida']);
+        Route::get('/vaciados-programados', [VaciadoProgramadoController::class, 'index']);
+        Route::post('/vaciados-programados', [VaciadoProgramadoController::class, 'store']);
+        Route::patch('/vaciados-programados/{id}/estado', [VaciadoProgramadoController::class, 'updateEstado']);
     });
 });

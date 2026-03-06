@@ -24,7 +24,10 @@ const menuByRole = {
   OPERADOR: [
     { label: "Dashboard", to: "/dashboard" },
     { label: "Puntos Verdes", to: "/puntos-verdes" },
-    { label: "Denuncias", to: "/denuncias" },
+    { label: "Entregas Reciclaje", to: "/entregas-reciclaje" },
+    { label: "Contenedores Estado", to: "/contenedores-estado" },
+    { label: "Alertas Contenedores", to: "/alertas-contenedores" },
+    { label: "Vaciados Programados", to: "/vaciados-programados" },
   ],
   AUDITOR: [
     { label: "Dashboard", to: "/dashboard" },

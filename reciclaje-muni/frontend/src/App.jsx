@@ -13,6 +13,10 @@ import Incidencias from "./pages/Incidencias";
 import Monitoreo from "./pages/Monitoreo";
 import Reportes from "./pages/Reportes";
 import PuntosVerdes from "./pages/PuntosVerdes";
+import EntregasReciclaje from "./pages/EntregasReciclaje";
+import ContenedoresEstado from "./pages/ContenedoresEstado";
+import VaciadosProgramados from "./pages/VaciadosProgramados";
+import AlertasContenedor from "./pages/AlertasContenedor";
 
 export default function App() {
   return (
@@ -39,6 +43,10 @@ export default function App() {
             <Route path="/reportes" element={<Reportes />} />
 
             <Route path="/puntos-verdes" element={<PuntosVerdes />} />
+            <Route path="/vaciados-programados" element={<VaciadosProgramados />} />
+            <Route path="/contenedores-estado" element={<ContenedoresEstado />} />
+            <Route path="/alertas-contenedores" element={<AlertasContenedor />} />
+            <Route path="/entregas-reciclaje" element={<EntregasReciclaje />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/login" replace />} />
