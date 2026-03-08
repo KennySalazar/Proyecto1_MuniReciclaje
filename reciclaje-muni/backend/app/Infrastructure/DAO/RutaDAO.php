@@ -8,11 +8,24 @@ class RutaDAO
 {
     public function listRutas(): array
     {
-        $rutas = DB::table('reciclaje.ruta')
-            ->select('id', 'nombre', 'distancia', 'dias_asignados', 'horario', 'tipo_residuo')
-            ->orderBy('id', 'desc')
+        $rutas = DB::table('reciclaje.ruta as r')
+            ->leftJoin('reciclaje.ruta_colonia as rc', 'rc.id_ruta', '=', 'r.id')
+            ->leftJoin('reciclaje.colonia as c', 'c.id', '=', 'rc.id_colonia')
+            ->leftJoin('reciclaje.zona as z', 'z.id', '=', 'c.id_zona')
+            ->select(
+                'r.id',
+                'r.nombre',
+                'r.distancia',
+                'r.dias_asignados',
+                'r.horario',
+                'r.tipo_residuo',
+                'c.id as id_colonia',
+                'c.nombre as colonia_nombre',
+                'z.id as id_zona',
+                'z.nombre as zona_nombre'
+            )
+            ->orderBy('r.id', 'desc')
             ->get();
-
 
         $result = [];
         foreach ($rutas as $r) {
@@ -20,7 +33,11 @@ class RutaDAO
                 ->join('reciclaje.coordenada as c', 'c.id', '=', 'rc.id_coordenada')
                 ->where('rc.id_ruta', $r->id)
                 ->orderBy('c.orden')
-                ->select('c.latitud', 'c.longitud', 'c.orden')
+                ->select(
+                    'c.latitud as lat',
+                    'c.longitud as lng',
+                    'c.orden'
+                )
                 ->get();
 
             $result[] = [
@@ -30,6 +47,10 @@ class RutaDAO
                 'dias_asignados' => $r->dias_asignados,
                 'horario' => $r->horario,
                 'tipo_residuo' => $r->tipo_residuo,
+                'id_colonia' => $r->id_colonia,
+                'colonia' => $r->colonia_nombre,
+                'id_zona' => $r->id_zona,
+                'zona' => $r->zona_nombre,
                 'coordenadas' => $coords,
             ];
         }
@@ -43,14 +64,21 @@ class RutaDAO
 
             $rutaId = DB::table('reciclaje.ruta')->insertGetId([
                 'nombre' => $data['nombre'],
-                'distancia' => $data['distancia_km'],     // NUMERIC(10,2)
+                'distancia' => $data['distancia_km'],
                 'dias_asignados' => $data['dias_asignados'],
                 'horario' => $data['horario'],
-                'tipo_residuo' => $data['tipo_residuo'],  // ENUM: ORGANICO/INORGANICO/MIXTO
+                'tipo_residuo' => $data['tipo_residuo'],
             ]);
 
-            // tipo_orden: tomamos la primera fila (la que contiene INICIO/INTERMEDIO/FIN)
-            $tipoOrdenId = DB::table('reciclaje.tipo_orden')->orderBy('id')->value('id');
+            DB::table('reciclaje.ruta_colonia')->insert([
+                'id_ruta' => $rutaId,
+                'id_colonia' => $data['id_colonia'],
+            ]);
+
+            $tipoOrdenId = DB::table('reciclaje.tipo_orden')
+                ->orderBy('id')
+                ->value('id');
+
             if (!$tipoOrdenId) {
                 throw new \RuntimeException("No existe registro en tipo_orden");
             }
@@ -69,7 +97,10 @@ class RutaDAO
                 ]);
             }
 
-            return ['id' => $rutaId];
+            return [
+                'id' => $rutaId,
+                'id_colonia' => $data['id_colonia'],
+            ];
         });
     }
 }

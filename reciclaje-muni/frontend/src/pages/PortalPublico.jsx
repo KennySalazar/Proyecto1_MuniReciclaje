@@ -53,8 +53,8 @@ export default function PortalPublico() {
           <h3 style={{ marginTop: 0 }}>Portal Público</h3>
 
           <div style={{ display: "grid", gap: 10 }}>
-            <button style={btnMenu} onClick={() => navigate("/consulta-rutas")}>
-              Ver rutas en mapa
+            <button style={btnMenu} onClick={() => navigate("/consulta-portal")}>
+              Ver portal de consulta ciudadana
             </button>
           </div>
         </div>

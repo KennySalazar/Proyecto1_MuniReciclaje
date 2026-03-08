@@ -26,9 +26,15 @@ class RutaController extends Controller
             'coordenadas.*.lat' => 'required|numeric',
             'coordenadas.*.lng' => 'required|numeric',
             'coordenadas.*.orden' => 'nullable|integer|min:1',
+            'id_colonia' => ['required', 'integer', 'exists:colonia,id'],
         ]);
 
         $created = $this->rutaService->crear($validated);
         return response()->json(['message' => 'Ruta creada', 'data' => $created], 201);
+    }
+
+    public function filtros()
+    {
+        return response()->json($this->rutaService->filtros());
     }
 }

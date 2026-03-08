@@ -16,9 +16,13 @@ use App\Http\Controllers\ContenedorController;
 use App\Http\Controllers\MaterialReciclajeController;
 use App\Http\Controllers\VaciadoProgramadoController;
 use App\Http\Controllers\NotificacionEstadoController;
+use App\Http\Controllers\PortalPublicoController;
 
 
 Route::post('/login', [AuthController::class, 'login']);
+
+Route::get('/portal-publico/rutas', [PortalPublicoController::class, 'rutas']);
+Route::get('/portal-publico/filtros', [PortalPublicoController::class, 'filtros']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
@@ -63,6 +67,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/reportes/camiones', [ReportesController::class, 'camiones']);
         Route::get('/reportes/incidencias', [ReportesController::class, 'incidencias']);
         Route::get('/reportes/eficiencia', [ReportesController::class, 'eficiencia']);
+        Route::get('/rutas/filtros', [RutaController::class, 'filtros']);
     });
 
     Route::middleware(['role:OPERADOR'])->group(function () {

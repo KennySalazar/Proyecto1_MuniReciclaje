@@ -11,8 +11,10 @@ export default function Rutas() {
 
   const [routes, setRoutes] = useState([]);
 
-  // seleccion de ruta
-  const [selectedRouteId, setSelectedRouteId] = useState("ALL"); 
+  const [zonas, setZonas] = useState([]);
+  const [colonias, setColonias] = useState([]);
+
+  const [selectedRouteId, setSelectedRouteId] = useState("ALL");
   const [showAll, setShowAll] = useState(true);
 
   const canSave = useMemo(
@@ -30,8 +32,20 @@ export default function Rutas() {
     }
   };
 
+  const loadFiltros = async () => {
+    try {
+      const res = await api.get("/rutas/filtros");
+      const data = res.data?.data ?? res.data ?? {};
+      setZonas(Array.isArray(data.zonas) ? data.zonas : []);
+      setColonias(Array.isArray(data.colonias) ? data.colonias : []);
+    } catch (e) {
+      console.log("ERROR GET /rutas/filtros:", e?.response?.status, e?.response?.data, e);
+    }
+  };
+
   useEffect(() => {
     loadRoutes();
+    loadFiltros();
   }, []);
 
   const handleSave = async (form) => {
@@ -45,6 +59,7 @@ export default function Rutas() {
         dias_asignados: form.dias_asignados,
         horario: form.horario,
         tipo_residuo: form.tipo_residuo,
+        id_colonia: Number(form.id_colonia),
         distancia_km: distanceKm,
         coordenadas: points,
       };
@@ -81,7 +96,6 @@ export default function Rutas() {
     setMsg("");
   };
 
-  //rutas que se van a dibujar según selección
   const routesToDraw = useMemo(() => {
     if (showAll) return routes;
 
@@ -97,7 +111,6 @@ export default function Rutas() {
         Trazá la ruta con clics en el mapa. Mínimo 2 puntos.
       </p>
 
-      {}
       <div
         style={{
           display: "flex",
@@ -152,13 +165,15 @@ export default function Rutas() {
           saving={saving}
           onSave={handleSave}
           onClear={handleClear}
+          zonas={zonas}
+          colonias={colonias}
         />
 
         <MapEditor
           points={points}
           setPoints={setPoints}
           setDistanceKm={setDistanceKm}
-          routes={routesToDraw} 
+          routes={routesToDraw}
         />
       </div>
 

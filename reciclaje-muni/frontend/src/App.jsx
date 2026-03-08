@@ -20,7 +20,8 @@ import AlertasContenedor from "./pages/AlertasContenedor";
 import PortalPublico from "./pages/PortalPublico";
 import CiudadanoLogin from "./pages/CiudadanoLogin";
 import CiudadanoRegistro from "./pages/CiudadanoRegistro";
-import ConsultaRutas from "./pages/ConsultaRutas";
+import ConsultaPortal from "./pages/ConsultaPortal";
+
 
 export default function App() {
   return (
@@ -30,7 +31,7 @@ export default function App() {
           {/* Portal público */}
           <Route path="/" element={<PortalPublico />} />
           <Route path="/portal-publico" element={<PortalPublico />} />
-          <Route path="/consulta-rutas" element={<ConsultaRutas />} />
+          <Route path="/consulta-portal" element={<ConsultaPortal />} />
 
           {/* Ciudadano */}
           <Route path="/ciudadano/login" element={<CiudadanoLogin />} />
@@ -61,6 +62,9 @@ export default function App() {
             <Route path="/contenedores-estado" element={<ContenedoresEstado />} />
             <Route path="/entregas-reciclaje" element={<EntregasReciclaje />} />
             <Route path="/alertas-contenedores" element={<AlertasContenedor />} />
+            <Route path="/portal-publico" element={<PortalPublico />} />
+
+
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

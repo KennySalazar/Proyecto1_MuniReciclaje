@@ -1,22 +1,46 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
-export default function RouteForm({ distanceKm, pointsCount, saving, onSave, onClear }) {
-
+export default function RouteForm({
+  distanceKm,
+  pointsCount,
+  saving,
+  onSave,
+  onClear,
+  zonas = [],
+  colonias = [],
+}) {
   const initialForm = {
     nombre: "",
     dias_asignados: "Lunes-Miercoles-Viernes",
     horario: "06:00-12:00",
     tipo_residuo: "MIXTO",
+    id_zona: "",
+    id_colonia: "",
   };
 
   const [form, setForm] = useState(initialForm);
 
   const handleChange = (field, value) => {
-    setForm({
-      ...form,
-      [field]: value
-    });
+    setForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
   };
+
+  const handleZonaChange = (value) => {
+    setForm((prev) => ({
+      ...prev,
+      id_zona: value,
+      id_colonia: "",
+    }));
+  };
+
+  const coloniasFiltradas = useMemo(() => {
+    if (!form.id_zona) return [];
+    return colonias.filter(
+      (c) => String(c.id_zona) === String(form.id_zona)
+    );
+  }, [colonias, form.id_zona]);
 
   const limpiarFormulario = () => {
     setForm(initialForm);
@@ -33,6 +57,35 @@ export default function RouteForm({ distanceKm, pointsCount, saving, onSave, onC
         value={form.nombre}
         onChange={(e) => handleChange("nombre", e.target.value)}
       />
+
+      <label>Zona</label>
+      <select
+        style={inp}
+        value={form.id_zona}
+        onChange={(e) => handleZonaChange(e.target.value)}
+      >
+        <option value="">-- Seleccioná zona --</option>
+        {zonas.map((z) => (
+          <option key={z.id} value={z.id}>
+            {z.nombre}
+          </option>
+        ))}
+      </select>
+
+      <label>Colonia</label>
+      <select
+        style={inp}
+        value={form.id_colonia}
+        onChange={(e) => handleChange("id_colonia", e.target.value)}
+        disabled={!form.id_zona}
+      >
+        <option value="">-- Seleccioná colonia --</option>
+        {coloniasFiltradas.map((c) => (
+          <option key={c.id} value={c.id}>
+            {c.nombre}
+          </option>
+        ))}
+      </select>
 
       <label>Días</label>
       <input
@@ -65,24 +118,25 @@ export default function RouteForm({ distanceKm, pointsCount, saving, onSave, onC
       </div>
 
       <button
-        disabled={saving || pointsCount < 2 || !form.nombre}
+        disabled={
+          saving ||
+          pointsCount < 2 ||
+          !form.nombre ||
+          !form.id_zona ||
+          !form.id_colonia
+        }
         onClick={() => onSave(form)}
         style={btn}
       >
         {saving ? "Guardando..." : "Guardar ruta"}
       </button>
 
-      <button
-        onClick={limpiarFormulario}
-        style={btn2}
-      >
+      <button onClick={limpiarFormulario} style={btn2}>
         Limpiar
       </button>
-
     </div>
   );
 }
-
 
 const card = {
   background: "rgba(246, 145, 13, 0.06)",
