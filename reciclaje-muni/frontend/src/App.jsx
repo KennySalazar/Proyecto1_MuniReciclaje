@@ -17,12 +17,27 @@ import EntregasReciclaje from "./pages/EntregasReciclaje";
 import ContenedoresEstado from "./pages/ContenedoresEstado";
 import VaciadosProgramados from "./pages/VaciadosProgramados";
 import AlertasContenedor from "./pages/AlertasContenedor";
+import PortalPublico from "./pages/PortalPublico";
+import CiudadanoLogin from "./pages/CiudadanoLogin";
+import CiudadanoRegistro from "./pages/CiudadanoRegistro";
+import ConsultaRutas from "./pages/ConsultaRutas";
 
 export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
+          {/* Portal público */}
+          <Route path="/" element={<PortalPublico />} />
+          <Route path="/portal-publico" element={<PortalPublico />} />
+          <Route path="/consulta-rutas" element={<ConsultaRutas />} />
+
+          {/* Ciudadano */}
+          <Route path="/ciudadano/login" element={<CiudadanoLogin />} />
+          <Route path="/ciudadano/registro" element={<CiudadanoRegistro />} />
+          
+
+          {/* Acceso municipal */}
           <Route path="/login" element={<Login />} />
 
           <Route
@@ -41,15 +56,14 @@ export default function App() {
             <Route path="/monitoreo" element={<Monitoreo />} />
             <Route path="/incidencias" element={<Incidencias />} />
             <Route path="/reportes" element={<Reportes />} />
-
             <Route path="/puntos-verdes" element={<PuntosVerdes />} />
             <Route path="/vaciados-programados" element={<VaciadosProgramados />} />
             <Route path="/contenedores-estado" element={<ContenedoresEstado />} />
-            <Route path="/alertas-contenedores" element={<AlertasContenedor />} />
             <Route path="/entregas-reciclaje" element={<EntregasReciclaje />} />
+            <Route path="/alertas-contenedores" element={<AlertasContenedor />} />
           </Route>
 
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

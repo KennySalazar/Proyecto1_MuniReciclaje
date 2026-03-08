@@ -44,14 +44,13 @@ export default function Dashboard() {
     return menuByRole[user?.rol] ?? [{ label: "Dashboard", to: "/dashboard" }];
   }, [user?.rol]);
 
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
+  const handleLogout = async () => {
+    await logout();
+    navigate("/", { replace: true });
   };
 
   return (
     <div style={{ display: "flex", minHeight: "100dvh", fontFamily: "system-ui" }}>
-  
       <aside
         style={{
           width: 240,
@@ -88,9 +87,7 @@ export default function Dashboard() {
         </nav>
       </aside>
 
-  
       <div style={{ flex: 1, background: "#0f172a", color: "white", minWidth: 0 }}>
-       
         <div
           style={{
             position: "sticky",

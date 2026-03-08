@@ -33,7 +33,7 @@ export default function Login() {
     <div
       style={{
         position: "fixed",
-        inset: 0, 
+        inset: 0,
         backgroundImage: `url(${bg})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
@@ -45,7 +45,6 @@ export default function Login() {
         fontFamily: "system-ui, sans-serif",
       }}
     >
-      {}
       <div
         style={{
           position: "absolute",
@@ -54,7 +53,6 @@ export default function Login() {
         }}
       />
 
-      {}
       <div
         style={{
           position: "relative",
@@ -85,17 +83,7 @@ export default function Login() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="admin@muni.com"
-            style={{
-              width: "100%",
-              marginTop: 6,
-              marginBottom: 14,
-              padding: "12px 12px",
-              borderRadius: 10,
-              border: "1px solid rgba(255,255,255,0.25)",
-              background: "rgba(0,0,0,0.35)",
-              color: "white",
-              outline: "none",
-            }}
+            style={inputStyle}
           />
 
           <label style={{ fontSize: 13, opacity: 0.9 }}>Contraseña</label>
@@ -104,17 +92,7 @@ export default function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
-            style={{
-              width: "100%",
-              marginTop: 6,
-              marginBottom: 10,
-              padding: "12px 12px",
-              borderRadius: 10,
-              border: "1px solid rgba(255,255,255,0.25)",
-              background: "rgba(0,0,0,0.35)",
-              color: "white",
-              outline: "none",
-            }}
+            style={inputStyle}
           />
 
           {error && (
@@ -154,10 +132,23 @@ export default function Login() {
           </button>
         </form>
 
+
         <div style={{ marginTop: 14, fontSize: 12, opacity: 0.85 }}>
-           Municipalidad — Panel Administrativo
+          Municipalidad — Panel Administrativo
         </div>
       </div>
     </div>
   );
 }
+
+const inputStyle = {
+  width: "100%",
+  marginTop: 6,
+  marginBottom: 14,
+  padding: "12px 12px",
+  borderRadius: 10,
+  border: "1px solid rgba(230, 18, 18, 0.85)",
+  background: "rgba(0,0,0,0.35)",
+  color: "white",
+  outline: "none",
+};
