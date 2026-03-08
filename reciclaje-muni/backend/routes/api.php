@@ -17,12 +17,15 @@ use App\Http\Controllers\MaterialReciclajeController;
 use App\Http\Controllers\VaciadoProgramadoController;
 use App\Http\Controllers\NotificacionEstadoController;
 use App\Http\Controllers\PortalPublicoController;
+use App\Http\Controllers\CiudadanoAuthController;
 
 
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/portal-publico/rutas', [PortalPublicoController::class, 'rutas']);
 Route::get('/portal-publico/filtros', [PortalPublicoController::class, 'filtros']);
+Route::post('/ciudadanos/register', [CiudadanoAuthController::class, 'register']);
+Route::post('/ciudadanos/login', [CiudadanoAuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
 

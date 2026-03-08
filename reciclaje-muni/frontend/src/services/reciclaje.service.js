@@ -19,3 +19,7 @@ export const updateEstadoVaciado = (id, payload) =>
 export const getNotificacionesContenedor = () => api.get("/notificaciones-contenedor");
 export const marcarNotificacionLeida = (id) =>
   api.patch(`/notificaciones-contenedor/${id}/leer`);
+
+
+export const ciudadanoRegister = (payload) => api.post("/ciudadanos/register", payload);
+export const ciudadanoLogin = (payload) => api.post("/ciudadanos/login", payload);

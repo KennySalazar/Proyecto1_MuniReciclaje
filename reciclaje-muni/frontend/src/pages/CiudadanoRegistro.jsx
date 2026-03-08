@@ -1,12 +1,17 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { ciudadanoRegister } from "../services/reciclaje.service";
+import { useAuth } from "../auth/useAuth";
 import bg from "../assets/reciclaje1.jpeg";
 
 export default function CiudadanoRegistro() {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const [form, setForm] = useState({
+    cui: "",
     nombre: "",
+    apellido: "",
     email: "",
     password: "",
     telefono: "",
@@ -14,16 +19,21 @@ export default function CiudadanoRegistro() {
   });
 
   const [msg, setMsg] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const submit = async (e) => {
     e.preventDefault();
     setMsg("");
+    setLoading(true);
 
     try {
-      // aquí luego conectas tu endpoint real
-      navigate("/ciudadano/login");
-    } catch {
-      setMsg("No se pudo registrar el ciudadano.");
+      const res = await ciudadanoRegister(form);
+      login(res.data);
+      navigate("/ciudadano/denuncias");
+    } catch (err) {
+      setMsg(err?.response?.data?.message || "No se pudo registrar el ciudadano.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -33,19 +43,81 @@ export default function CiudadanoRegistro() {
         <h2>Registro Ciudadano</h2>
 
         <form onSubmit={submit} style={{ display: "grid", gap: 12 }}>
-          <input style={inp} placeholder="Nombre completo" value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} />
-          <input style={inp} placeholder="Correo" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-          <input style={inp} type="password" placeholder="Contraseña" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
-          <input style={inp} placeholder="Teléfono" value={form.telefono} onChange={(e) => setForm({ ...form, telefono: e.target.value })} />
-          <input style={inp} placeholder="Dirección" value={form.direccion} onChange={(e) => setForm({ ...form, direccion: e.target.value })} />
-          <button style={btn}>Registrarse</button>
+          <input
+            style={inp}
+            placeholder="CUI"
+            value={form.cui}
+            onChange={(e) => setForm({ ...form, cui: e.target.value })}
+          />
+
+          <input
+            style={inp}
+            placeholder="Nombre"
+            value={form.nombre}
+            onChange={(e) => setForm({ ...form, nombre: e.target.value })}
+          />
+
+          <input
+            style={inp}
+            placeholder="Apellido"
+            value={form.apellido}
+            onChange={(e) => setForm({ ...form, apellido: e.target.value })}
+          />
+
+          <input
+            style={inp}
+            placeholder="Correo"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+          />
+
+          <input
+            style={inp}
+            type="password"
+            placeholder="Contraseña"
+            value={form.password}
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
+          />
+
+          <input
+            style={inp}
+            placeholder="Teléfono"
+            value={form.telefono}
+            onChange={(e) => setForm({ ...form, telefono: e.target.value })}
+          />
+
+          <input
+            style={inp}
+            placeholder="Dirección"
+            value={form.direccion}
+            onChange={(e) => setForm({ ...form, direccion: e.target.value })}
+          />
+
+          {msg && (
+            <div style={errorBox}>
+              {msg}
+            </div>
+          )}
+
+          <button style={btn} disabled={loading}>
+            {loading ? "Registrando..." : "Registrarse"}
+          </button>
         </form>
 
-        {msg && <div style={{ marginTop: 10 }}>{msg}</div>}
-
         <div style={{ marginTop: 14, opacity: 0.9 }}>
-          ¿Ya tienes cuenta? <Link to="/ciudadano/login" style={{ color: "#86efac" }}>Iniciar sesión</Link>
+          ¿Ya tienes cuenta?{" "}
+          <Link to="/ciudadano/login" style={{ color: "#86efac" }}>
+            Iniciar sesión
+          </Link>
         </div>
+
+        <button
+          type="button"
+          onClick={() => navigate("/")}
+          style={btnSecondary}
+        >
+          Volver al portal público
+        </button>
       </div>
     </div>
   );
@@ -89,4 +161,25 @@ const btn = {
   color: "white",
   fontWeight: 800,
   cursor: "pointer",
+};
+
+const btnSecondary = {
+  marginTop: 12,
+  width: "100%",
+  padding: "12px 14px",
+  borderRadius: 12,
+  border: "1px solid rgba(255,255,255,0.18)",
+  background: "rgba(255,255,255,0.06)",
+  color: "white",
+  fontWeight: 700,
+  cursor: "pointer",
+};
+
+const errorBox = {
+  padding: "10px 12px",
+  borderRadius: 10,
+  background: "rgba(220, 38, 38, 0.18)",
+  border: "1px solid rgba(220, 38, 38, 0.35)",
+  color: "#fecaca",
+  fontSize: 13,
 };

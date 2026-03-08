@@ -1,22 +1,31 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { ciudadanoLogin } from "../services/reciclaje.service";
+import { useAuth } from "../auth/useAuth";
 import bg from "../assets/reciclaje1.jpeg";
 
 export default function CiudadanoLogin() {
   const navigate = useNavigate();
+  const { login } = useAuth();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [msg, setMsg] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMsg("");
+    setLoading(true);
 
     try {
-      // aquí luego conectas tu endpoint real
-      navigate("/ciudadano/denuncias");
-    } catch {
-      setMsg("No se pudo iniciar sesión.");
+      const res = await ciudadanoLogin({ email, password });
+      login(res.data);
+      navigate("/ciudadano/dashboard");
+    } catch (err) {
+      setMsg(err?.response?.data?.message || "No se pudo iniciar sesión.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -24,17 +33,48 @@ export default function CiudadanoLogin() {
     <div style={wrap(bg)}>
       <div style={box}>
         <h2>Ingreso Ciudadano</h2>
+
         <form onSubmit={handleSubmit} style={{ display: "grid", gap: 12 }}>
-          <input style={inp} placeholder="Correo" value={email} onChange={(e) => setEmail(e.target.value)} />
-          <input style={inp} type="password" placeholder="Contraseña" value={password} onChange={(e) => setPassword(e.target.value)} />
-          <button style={btn}>Ingresar</button>
+          <input
+            style={inp}
+            placeholder="Correo"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+
+          <input
+            style={inp}
+            type="password"
+            placeholder="Contraseña"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+
+          {msg && (
+            <div style={errorBox}>
+              {msg}
+            </div>
+          )}
+
+          <button style={btn} disabled={loading}>
+            {loading ? "Ingresando..." : "Ingresar"}
+          </button>
         </form>
 
-        {msg && <div style={{ marginTop: 10 }}>{msg}</div>}
-
         <div style={{ marginTop: 14, opacity: 0.9 }}>
-          ¿No tienes cuenta? <Link to="/ciudadano/registro" style={{ color: "#86efac" }}>Registrarse</Link>
+          ¿No tienes cuenta?{" "}
+          <Link to="/ciudadano/registro" style={{ color: "#86efac" }}>
+            Registrarse
+          </Link>
         </div>
+
+        <button
+          type="button"
+          onClick={() => navigate("/")}
+          style={btnSecondary}
+        >
+          Volver al portal público
+        </button>
       </div>
     </div>
   );
@@ -78,4 +118,25 @@ const btn = {
   color: "white",
   fontWeight: 800,
   cursor: "pointer",
+};
+
+const btnSecondary = {
+  marginTop: 12,
+  width: "100%",
+  padding: "12px 14px",
+  borderRadius: 12,
+  border: "1px solid rgba(255,255,255,0.18)",
+  background: "rgba(255,255,255,0.06)",
+  color: "white",
+  fontWeight: 700,
+  cursor: "pointer",
+};
+
+const errorBox = {
+  padding: "10px 12px",
+  borderRadius: 10,
+  background: "rgba(220, 38, 38, 0.18)",
+  border: "1px solid rgba(220, 38, 38, 0.35)",
+  color: "#fecaca",
+  fontSize: 13,
 };

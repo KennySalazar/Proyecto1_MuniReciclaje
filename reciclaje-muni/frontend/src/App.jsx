@@ -21,6 +21,8 @@ import PortalPublico from "./pages/PortalPublico";
 import CiudadanoLogin from "./pages/CiudadanoLogin";
 import CiudadanoRegistro from "./pages/CiudadanoRegistro";
 import ConsultaPortal from "./pages/ConsultaPortal";
+import CiudadanoDashboard from "./pages/CiudadanoDashboard";
+
 
 
 export default function App() {
@@ -36,6 +38,7 @@ export default function App() {
           {/* Ciudadano */}
           <Route path="/ciudadano/login" element={<CiudadanoLogin />} />
           <Route path="/ciudadano/registro" element={<CiudadanoRegistro />} />
+          <Route path="/ciudadano/dashboard" element={<CiudadanoDashboard />} />
           
 
           {/* Acceso municipal */}
