@@ -22,7 +22,9 @@ import CiudadanoLogin from "./pages/CiudadanoLogin";
 import CiudadanoRegistro from "./pages/CiudadanoRegistro";
 import ConsultaPortal from "./pages/ConsultaPortal";
 import CiudadanoDashboard from "./pages/CiudadanoDashboard";
-
+import DenunciaCiudadana from "./pages/DenunciaCiudadana";
+import DenunciasAdmin from "./pages/DenunciasAdmin";
+import SeguimientoDenuncias from "./pages/SeguimientoDenuncias";
 
 
 export default function App() {
@@ -39,6 +41,8 @@ export default function App() {
           <Route path="/ciudadano/login" element={<CiudadanoLogin />} />
           <Route path="/ciudadano/registro" element={<CiudadanoRegistro />} />
           <Route path="/ciudadano/dashboard" element={<CiudadanoDashboard />} />
+          <Route path="/ciudadano/denuncias" element={<DenunciaCiudadana />} />
+          <Route path="/ciudadano/seguimiento" element={<SeguimientoDenuncias />} />
           
 
           {/* Acceso municipal */}
@@ -66,6 +70,8 @@ export default function App() {
             <Route path="/entregas-reciclaje" element={<EntregasReciclaje />} />
             <Route path="/alertas-contenedores" element={<AlertasContenedor />} />
             <Route path="/portal-publico" element={<PortalPublico />} />
+            <Route path="/denuncias-admin" element={<DenunciasAdmin />} />
+          
 
 
           </Route>

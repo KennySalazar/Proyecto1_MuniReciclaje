@@ -20,6 +20,32 @@ export const getNotificacionesContenedor = () => api.get("/notificaciones-conten
 export const marcarNotificacionLeida = (id) =>
   api.patch(`/notificaciones-contenedor/${id}/leer`);
 
-
 export const ciudadanoRegister = (payload) => api.post("/ciudadanos/register", payload);
 export const ciudadanoLogin = (payload) => api.post("/ciudadanos/login", payload);
+
+/* DENUNCIAS CIUDADANAS */
+export const getCatalogosDenuncia = () => api.get("/denuncias/catalogos");
+
+export const crearDenunciaCiudadana = (formData) =>
+  api.post("/ciudadano/denuncias", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+export const getMisDenuncias = () => api.get("/ciudadano/denuncias");
+
+export const getDenuncias = () => api.get("/denuncias");
+export const getDenunciaDetalle = (id) => api.get(`/denuncias/${id}`);
+export const cambiarEstadoDenuncia = (id, payload) =>
+  api.patch(`/denuncias/${id}/estado`, payload);
+
+export const asignarCuadrillaDenuncia = (payload) =>
+  api.post("/denuncias/asignar-cuadrilla", payload);
+
+export const subirFotoDenuncia = (id, formData) =>
+  api.post(`/denuncias/${id}/fotos`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });

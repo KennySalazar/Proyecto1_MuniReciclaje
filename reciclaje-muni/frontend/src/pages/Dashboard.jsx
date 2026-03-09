@@ -8,7 +8,7 @@ const menuByRole = {
     { label: "Usuarios", to: "/usuarios" },
     { label: "Rutas", to: "/rutas" },
     { label: "Puntos Verdes", to: "/puntos-verdes" },
-    { label: "Denuncias", to: "/denuncias" },
+    { label: "Denuncias", to: "/denuncias-admin" },
     { label: "Reportes", to: "/reportes" },
   ],
   COORDINADOR: [

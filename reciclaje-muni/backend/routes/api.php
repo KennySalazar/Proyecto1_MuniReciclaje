@@ -18,7 +18,7 @@ use App\Http\Controllers\VaciadoProgramadoController;
 use App\Http\Controllers\NotificacionEstadoController;
 use App\Http\Controllers\PortalPublicoController;
 use App\Http\Controllers\CiudadanoAuthController;
-
+use App\Http\Controllers\DenunciaController;
 
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -26,12 +26,23 @@ Route::get('/portal-publico/rutas', [PortalPublicoController::class, 'rutas']);
 Route::get('/portal-publico/filtros', [PortalPublicoController::class, 'filtros']);
 Route::post('/ciudadanos/register', [CiudadanoAuthController::class, 'register']);
 Route::post('/ciudadanos/login', [CiudadanoAuthController::class, 'login']);
+Route::get('/denuncias/catalogos', [DenunciaController::class, 'catalogos']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/conductores', [UsuarioController::class, 'conductores']);
+
+    // CIUDADADANOS
+    Route::post('/ciudadano/denuncias', [DenunciaController::class, 'storeCiudadano']);
+    Route::get('/ciudadano/denuncias', [DenunciaController::class, 'misDenuncias']);
+
+    Route::get('/denuncias', [DenunciaController::class, 'index']);
+    Route::get('/denuncias/{id}', [DenunciaController::class, 'show']);
+    Route::patch('/denuncias/{id}/estado', [DenunciaController::class, 'cambiarEstado']);
+    Route::post('/denuncias/asignar-cuadrilla', [DenunciaController::class, 'asignarCuadrilla']);
+    Route::post('/denuncias/{id}/fotos', [DenunciaController::class, 'subirFoto']);
 
     Route::middleware(['role:ADMIN,COORDINADOR'])->group(function () {
         Route::get('/camiones', [CamionController::class, 'index']);
