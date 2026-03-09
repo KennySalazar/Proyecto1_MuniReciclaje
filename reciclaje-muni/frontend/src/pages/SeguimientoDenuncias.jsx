@@ -23,6 +23,11 @@ function textoTamano(valor) {
   return valor || "N/D";
 }
 
+function fotoUrl(path) {
+  if (!path) return null;
+  return `http://127.0.0.1:8000/storage/${path}`;
+}
+
 export default function SeguimientoDenuncias() {
   const navigate = useNavigate();
 
@@ -101,7 +106,7 @@ export default function SeguimientoDenuncias() {
                   flexWrap: "wrap",
                 }}
               >
-                <div>
+                <div style={{ flex: 1, minWidth: 280 }}>
                   <div style={{ fontWeight: 900, fontSize: 20 }}>
                     Denuncia #{d.id}
                   </div>
@@ -133,6 +138,39 @@ export default function SeguimientoDenuncias() {
                   <div style={{ marginTop: 10, opacity: 0.98 }}>
                     {d.descripcion}
                   </div>
+
+                  {d.foto_evidencia && (
+                    <div style={{ marginTop: 12 }}>
+                      <div style={fotoTitle}>Foto reportada</div>
+                      <img
+                        src={fotoUrl(d.foto_evidencia)}
+                        alt="Foto evidencia"
+                        style={imgStyle}
+                      />
+                    </div>
+                  )}
+
+                  {d.foto_antes && (
+                    <div style={{ marginTop: 12 }}>
+                      <div style={fotoTitle}>Antes de la limpieza</div>
+                      <img
+                        src={fotoUrl(d.foto_antes)}
+                        alt="Foto antes"
+                        style={imgStyle}
+                      />
+                    </div>
+                  )}
+
+                  {d.foto_despues && (
+                    <div style={{ marginTop: 12 }}>
+                      <div style={fotoTitle}>Después de la limpieza</div>
+                      <img
+                        src={fotoUrl(d.foto_despues)}
+                        alt="Foto después"
+                        style={imgStyle}
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div
@@ -166,7 +204,7 @@ export default function SeguimientoDenuncias() {
 
 const card = {
   background: "rgba(255,255,255,0.06)",
-  border: "1px solid rgba(255,255,255,0.10)",
+  border: "1px solid rgba(236, 7, 7, 0.85)",
   borderRadius: 16,
   padding: 16,
 };
@@ -195,4 +233,17 @@ const btnSecondary = {
   color: "white",
   fontWeight: 700,
   cursor: "pointer",
+};
+
+const fotoTitle = {
+  fontWeight: 700,
+  marginBottom: 6,
+};
+
+const imgStyle = {
+  width: "100%",
+  maxHeight: 260,
+  objectFit: "cover",
+  borderRadius: 10,
+  display: "block",
 };

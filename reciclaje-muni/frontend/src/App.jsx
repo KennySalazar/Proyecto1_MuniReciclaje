@@ -25,7 +25,7 @@ import CiudadanoDashboard from "./pages/CiudadanoDashboard";
 import DenunciaCiudadana from "./pages/DenunciaCiudadana";
 import DenunciasAdmin from "./pages/DenunciasAdmin";
 import SeguimientoDenuncias from "./pages/SeguimientoDenuncias";
-
+import PuntosVerdesCiudadano from "./pages/PuntosVerdesCiudadano";
 
 export default function App() {
   return (
@@ -43,8 +43,8 @@ export default function App() {
           <Route path="/ciudadano/dashboard" element={<CiudadanoDashboard />} />
           <Route path="/ciudadano/denuncias" element={<DenunciaCiudadana />} />
           <Route path="/ciudadano/seguimiento" element={<SeguimientoDenuncias />} />
+          <Route path="/ciudadano/puntos-verdes" element={<PuntosVerdesCiudadano />} />
           
-
           {/* Acceso municipal */}
           <Route path="/login" element={<Login />} />
 

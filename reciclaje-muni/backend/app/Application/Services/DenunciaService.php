@@ -90,6 +90,20 @@ class DenunciaService
             ->join('reciclaje.estado_denuncia as ed', 'ed.id', '=', 'f.id_estado_denuncia')
             ->leftJoin('reciclaje.asignacion_denuncia as ad', 'ad.id_formulario', '=', 'f.id')
             ->leftJoin('reciclaje.cuadrilla as cu', 'cu.id', '=', 'ad.id_cuadrilla')
+
+            ->leftJoin('reciclaje.foto as fe', function ($join) {
+                $join->on('fe.id_formulario', '=', 'f.id')
+                    ->where('fe.tipo_foto', '=', 'EVIDENCIA');
+            })
+            ->leftJoin('reciclaje.foto as fa', function ($join) {
+                $join->on('fa.id_formulario', '=', 'f.id')
+                    ->where('fa.tipo_foto', '=', 'ANTES');
+            })
+            ->leftJoin('reciclaje.foto as fd', function ($join) {
+                $join->on('fd.id_formulario', '=', 'f.id')
+                    ->where('fd.tipo_foto', '=', 'DESPUES');
+            })
+
             ->where('f.id_ciudadano', $idCiudadano)
             ->select(
                 'f.id',
@@ -102,7 +116,10 @@ class DenunciaService
                 'cu.nombre as cuadrilla',
                 'ad.fecha_programada',
                 'ad.recursos_estimados',
-                'ad.observacion'
+                'ad.observacion',
+                'fe.ruta_archivo as foto_evidencia',
+                'fa.ruta_archivo as foto_antes',
+                'fd.ruta_archivo as foto_despues'
             )
             ->orderByDesc('f.id')
             ->get();
@@ -118,6 +135,20 @@ class DenunciaService
             ->leftJoin('reciclaje.ciudadano as ci', 'ci.id', '=', 'f.id_ciudadano')
             ->leftJoin('reciclaje.asignacion_denuncia as ad', 'ad.id_formulario', '=', 'f.id')
             ->leftJoin('reciclaje.cuadrilla as cu', 'cu.id', '=', 'ad.id_cuadrilla')
+
+            ->leftJoin('reciclaje.foto as fe', function ($join) {
+                $join->on('fe.id_formulario', '=', 'f.id')
+                    ->where('fe.tipo_foto', '=', 'EVIDENCIA');
+            })
+            ->leftJoin('reciclaje.foto as fa', function ($join) {
+                $join->on('fa.id_formulario', '=', 'f.id')
+                    ->where('fa.tipo_foto', '=', 'ANTES');
+            })
+            ->leftJoin('reciclaje.foto as fd', function ($join) {
+                $join->on('fd.id_formulario', '=', 'f.id')
+                    ->where('fd.tipo_foto', '=', 'DESPUES');
+            })
+
             ->select(
                 'f.id',
                 'f.descripcion',
@@ -133,7 +164,10 @@ class DenunciaService
                 'cu.nombre as cuadrilla',
                 'ad.fecha_programada',
                 'ad.recursos_estimados',
-                'ad.observacion'
+                'ad.observacion',
+                'fe.ruta_archivo as foto_evidencia',
+                'fa.ruta_archivo as foto_antes',
+                'fd.ruta_archivo as foto_despues'
             )
             ->orderByDesc('f.id')
             ->get();

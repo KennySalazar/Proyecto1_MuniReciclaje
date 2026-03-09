@@ -23,7 +23,7 @@ export const marcarNotificacionLeida = (id) =>
 export const ciudadanoRegister = (payload) => api.post("/ciudadanos/register", payload);
 export const ciudadanoLogin = (payload) => api.post("/ciudadanos/login", payload);
 
-/* DENUNCIAS CIUDADANAS */
+
 export const getCatalogosDenuncia = () => api.get("/denuncias/catalogos");
 
 export const crearDenunciaCiudadana = (formData) =>
@@ -49,3 +49,5 @@ export const subirFotoDenuncia = (id, formData) =>
       "Content-Type": "multipart/form-data",
     },
   });
+
+export const getPuntosVerdesPublicos = () => api.get("/portal/puntos-verdes");

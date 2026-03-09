@@ -45,6 +45,11 @@ function textoTamano(valor) {
   return valor || "N/D";
 }
 
+function fotoUrl(path) {
+  if (!path) return null;
+  return `http://127.0.0.1:8000/storage/${path}`;
+}
+
 function ClickMap({ onPick }) {
   useMapEvents({
     click(e) {
@@ -131,7 +136,7 @@ export default function DenunciaCiudadana() {
       });
 
       await load();
-      setMsg("****Denuncia registrada correctamente***");
+      setMsg("Denuncia registrada correctamente");
     } catch (err) {
       setMsg(err?.response?.data?.message || "No se pudo registrar la denuncia");
     } finally {
@@ -298,21 +303,26 @@ export default function DenunciaCiudadana() {
                         <div style={{ fontWeight: 900, fontSize: 17 }}>
                           Denuncia #{d.id}
                         </div>
+
                         <div style={{ marginTop: 6, opacity: 0.9 }}>
                           Tamaño: <b>{textoTamano(d.tamano) || "N/D"}</b>
                         </div>
-                     <div style={{ opacity: 0.9 }}>
-                        Fecha: <b>{d.fecha_denuncia}</b>
-                      </div>
-                      <div style={{ opacity: 0.9 }}>
-                        Ubicación: <b>{d.latitud}, {d.longitud}</b>
-                      </div>
-                      <div style={{ opacity: 0.9 }}>
-                        Cuadrilla asignada: <b>{d.cuadrilla || "Sin asignar"}</b>
-                      </div>
-                      <div style={{ opacity: 0.9 }}>
-                        Fecha programada: <b>{d.fecha_programada || "No programada"}</b>
-                      </div>
+
+                        <div style={{ opacity: 0.9 }}>
+                          Fecha: <b>{d.fecha_denuncia}</b>
+                        </div>
+
+                        <div style={{ opacity: 0.9 }}>
+                          Ubicación: <b>{d.latitud}, {d.longitud}</b>
+                        </div>
+
+                        <div style={{ opacity: 0.9 }}>
+                          Cuadrilla asignada: <b>{d.cuadrilla || "Sin asignar"}</b>
+                        </div>
+
+                        <div style={{ opacity: 0.9 }}>
+                          Fecha programada: <b>{d.fecha_programada || "No programada"}</b>
+                        </div>
                       </div>
 
                       <div
@@ -328,6 +338,17 @@ export default function DenunciaCiudadana() {
                         {d.nombre_estado}
                       </div>
                     </div>
+
+                    {d.foto_evidencia && (
+                      <div style={{ marginTop: 10 }}>
+                        <div style={fotoTitle}>Foto reportada</div>
+                        <img
+                          src={fotoUrl(d.foto_evidencia)}
+                          alt="Foto evidencia"
+                          style={previewImg}
+                        />
+                      </div>
+                    )}
 
                     <div style={{ marginTop: 10, opacity: 0.95 }}>
                       {d.descripcion}
@@ -351,21 +372,21 @@ export default function DenunciaCiudadana() {
 
 const card = {
   background: "rgba(255,255,255,0.06)",
-  border: "1px solid rgba(255,255,255,0.10)",
+  border: "1px solid rgba(221, 12, 12, 0.82)",
   borderRadius: 16,
   padding: 16,
 };
 
 const item = {
   background: "rgba(255,255,255,0.04)",
-  border: "1px solid rgba(255,255,255,0.08)",
+  border: "1px solid rgba(202, 240, 12, 0.89)",
   borderRadius: 12,
   padding: 12,
 };
 
 const emptyBox = {
   background: "rgba(255,255,255,0.04)",
-  border: "1px dashed rgba(255,255,255,0.12)",
+  border: "1px dashed rgba(133, 225, 12, 0.12)",
   borderRadius: 12,
   padding: 14,
   opacity: 0.9,
@@ -383,7 +404,7 @@ const mapHelpBox = {
   padding: "10px 12px",
   borderRadius: 10,
   background: "rgba(59,130,246,0.12)",
-  border: "1px solid rgba(59,130,246,0.25)",
+  border: "1px solid rgba(59, 131, 246, 0.84)",
   fontSize: 13,
 };
 
@@ -391,7 +412,7 @@ const previewWrap = {
   padding: 8,
   borderRadius: 12,
   border: "1px solid rgba(255,255,255,0.10)",
-  background: "rgba(255,255,255,0.04)",
+  background: "rgba(181, 230, 20, 0.92)",
 };
 
 const previewImg = {
@@ -402,12 +423,17 @@ const previewImg = {
   display: "block",
 };
 
+const fotoTitle = {
+  fontWeight: 700,
+  marginBottom: 6,
+};
+
 const inp = {
   width: "100%",
   padding: "12px 14px",
   borderRadius: 12,
   border: "1px solid rgba(255,255,255,0.15)",
-  background: "rgba(0,0,0,0.22)",
+  background: "#ee4b0a",
   color: "white",
   outline: "none",
 };

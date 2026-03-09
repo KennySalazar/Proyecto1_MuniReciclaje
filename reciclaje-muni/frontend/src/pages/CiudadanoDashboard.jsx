@@ -23,7 +23,7 @@ export default function CiudadanoDashboard() {
       }}
     >
       <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-        {/* Header */}
+        {}
         <div
           style={{
             display: "flex",
@@ -58,16 +58,9 @@ export default function CiudadanoDashboard() {
           </div>
         </div>
 
-        {/* Resumen */}
-        <div style={heroCard}>
-          <h2 style={{ marginTop: 0, marginBottom: 10 }}>Servicios disponibles</h2>
-          <p style={{ opacity: 0.92, lineHeight: 1.7, margin: 0 }}>
-            Desde aquí puedes consultar rutas de recolección, registrar denuncias ciudadanas
-            sobre basureros clandestinos y dar seguimiento al estado de tus reportes.
-          </p>
-        </div>
+        {}
 
-        {/* Acciones */}
+        {}
         <div
           style={{
             display: "grid",
@@ -76,17 +69,16 @@ export default function CiudadanoDashboard() {
             marginTop: 24,
           }}
         >
-          <div style={card}>
-            <div style={iconCircle}>🗺️</div>
-            <h3 style={title}>Consulta de puntos verdes</h3>
-            <p style={desc}>
-              Visualiza en el mapa los puntos verdes de recolección de reciclaje más cercanos a tu ubicación.
-            </p>
-            <button onClick={() => navigate("/puntos-verdes-ciudadano")} style={btnPrimary}>
-              Ver puntos verdes
-            </button>
-          </div>
-
+            <div style={card}>
+              <div style={iconCircle}>♻️</div>
+              <h3 style={title}>Puntos verdes</h3>
+              <p style={desc}>
+                Consulta la ubicación de los puntos verdes disponibles para reciclaje.
+              </p>
+              <button onClick={() => navigate("/ciudadano/puntos-verdes")} style={btnPrimary}>
+                Ver puntos verdes
+              </button>
+            </div>
           <div style={card}>
             <div style={iconCircle}>📝</div>
             <h3 style={title}>Registrar denuncia</h3>
@@ -109,43 +101,18 @@ export default function CiudadanoDashboard() {
             </button>
           </div>
 
-          <div style={card}>
-            <div style={iconCircle}>♻️</div>
-            <h3 style={title}>Portal ciudadano</h3>
-            <p style={desc}>
-              Regresa al portal público para consultar información general del sistema.
-            </p>
-            <button onClick={() => navigate("/")} style={btnPrimary}>
-              Ir al portal
-            </button>
-          </div>
         </div>
 
-        {/* Bloque informativo */}
-        <div style={{ ...heroCard, marginTop: 24 }}>
-          <h3 style={{ marginTop: 0 }}>Seguimiento de denuncias</h3>
-          <p style={{ margin: 0, opacity: 0.9, lineHeight: 1.7 }}>
-            Podrás consultar si tu denuncia se encuentra en estado <b>Recibida</b>,{" "}
-            <b>En revisión</b>, <b>Asignada</b>, <b>En atención</b>, <b>Atendida</b> o{" "}
-            <b>Cerrada</b>.
-          </p>
-        </div>
+        {}
+
       </div>
     </div>
   );
 }
 
-const heroCard = {
-  background: "rgba(255,255,255,0.08)",
-  border: "1px solid rgba(255,255,255,0.12)",
-  borderRadius: 18,
-  padding: 22,
-  backdropFilter: "blur(10px)",
-};
-
 const card = {
   background: "rgba(255,255,255,0.07)",
-  border: "1px solid rgba(255,255,255,0.10)",
+  border: "1px solid rgba(220, 14, 14, 0.85)",
   borderRadius: 18,
   padding: 20,
   backdropFilter: "blur(8px)",
@@ -192,7 +159,7 @@ const btnSecondary = {
   padding: "12px 14px",
   borderRadius: 12,
   border: "1px solid rgba(255,255,255,0.18)",
-  background: "rgba(255,255,255,0.06)",
+  background: "rgba(228, 17, 17, 0.91)",
   color: "white",
   fontWeight: 700,
   cursor: "pointer",
