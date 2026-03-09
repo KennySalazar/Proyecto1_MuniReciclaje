@@ -23,4 +23,8 @@ class PortalPublicoController extends Controller
     {
         return response()->json($this->service->filtros());
     }
+    public function estadisticas()
+    {
+        return response()->json($this->service->estadisticas());
+    }
 }

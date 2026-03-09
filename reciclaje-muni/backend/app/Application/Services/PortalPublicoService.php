@@ -96,4 +96,42 @@ class PortalPublicoService
             'colonias' => $colonias,
         ];
     }
+
+    public function estadisticas()
+    {
+        $totalPuntosVerdes = DB::table('reciclaje.punto_reciclaje')->count();
+
+        $totalRutas = DB::table('reciclaje.ruta')->count();
+
+        $totalDenuncias = DB::table('reciclaje.formulario')->count();
+
+        $denunciasAtendidas = DB::table('reciclaje.formulario as f')
+            ->join('reciclaje.estado_denuncia as ed', 'ed.id', '=', 'f.id_estado_denuncia')
+            ->whereIn('ed.nombre_estado', ['ATENDIDA', 'CERRADA'])
+            ->count();
+
+        $totalReciclado = DB::table('reciclaje.material_reciclaje')
+            ->sum('cantidad');
+
+        $materiales = DB::table('reciclaje.material_reciclaje as mr')
+            ->join('reciclaje.contenedor as c', 'c.id', '=', 'mr.id_contenedor')
+            ->join('reciclaje.tipo_material as tm', 'tm.id', '=', 'c.id_tipo_material')
+            ->select(
+                'tm.nombre_tipo',
+                DB::raw('SUM(mr.cantidad) as total')
+            )
+            ->groupBy('tm.nombre_tipo')
+            ->orderByDesc('total')
+            ->limit(5)
+            ->get();
+
+        return [
+            "puntos_verdes" => $totalPuntosVerdes,
+            "rutas" => $totalRutas,
+            "denuncias" => $totalDenuncias,
+            "denuncias_atendidas" => $denunciasAtendidas,
+            "reciclado_total" => $totalReciclado ?? 0,
+            "materiales" => $materiales
+        ];
+    }
 }

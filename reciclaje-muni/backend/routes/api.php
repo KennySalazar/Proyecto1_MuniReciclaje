@@ -28,6 +28,7 @@ Route::post('/ciudadanos/register', [CiudadanoAuthController::class, 'register']
 Route::post('/ciudadanos/login', [CiudadanoAuthController::class, 'login']);
 Route::get('/denuncias/catalogos', [DenunciaController::class, 'catalogos']);
 Route::get('/portal/puntos-verdes', [PuntoReciclajeController::class, 'index']);
+Route::get('/portal/estadisticas', [PortalPublicoController::class, 'estadisticas']);
 
 Route::middleware('auth:sanctum')->group(function () {
 

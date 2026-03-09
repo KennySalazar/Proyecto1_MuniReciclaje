@@ -51,3 +51,6 @@ export const subirFotoDenuncia = (id, formData) =>
   });
 
 export const getPuntosVerdesPublicos = () => api.get("/portal/puntos-verdes");
+
+export const getEstadisticasPublicas = () =>
+  api.get("/portal/estadisticas");

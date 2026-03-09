@@ -101,6 +101,17 @@ export default function CiudadanoDashboard() {
             </button>
           </div>
 
+                    <div style={card}>
+            <div style={iconCircle}>📊</div>
+            <h3 style={title}>Estadísticas</h3>
+            <p style={desc}>
+              Consulta las estadísticas públicas sobre el reciclaje en tu área.
+            </p>
+            <button onClick={() => navigate("/ciudadano/estadisticas")} style={btnPrimary}>
+              Ver estadísticas
+            </button>
+          </div>
+
         </div>
 
         {}

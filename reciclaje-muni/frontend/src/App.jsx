@@ -26,7 +26,7 @@ import DenunciaCiudadana from "./pages/DenunciaCiudadana";
 import DenunciasAdmin from "./pages/DenunciasAdmin";
 import SeguimientoDenuncias from "./pages/SeguimientoDenuncias";
 import PuntosVerdesCiudadano from "./pages/PuntosVerdesCiudadano";
-
+import EstadisticasCiudadano from "./pages/EstadisticasCiudadano";
 export default function App() {
   return (
     <AuthProvider>
@@ -44,6 +44,7 @@ export default function App() {
           <Route path="/ciudadano/denuncias" element={<DenunciaCiudadana />} />
           <Route path="/ciudadano/seguimiento" element={<SeguimientoDenuncias />} />
           <Route path="/ciudadano/puntos-verdes" element={<PuntosVerdesCiudadano />} />
+          <Route path="/ciudadano/estadisticas" element={<EstadisticasCiudadano/>}/>
           
           {/* Acceso municipal */}
           <Route path="/login" element={<Login />} />
