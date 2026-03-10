@@ -9,7 +9,8 @@ const menuByRole = {
     { label: "Rutas", to: "/rutas" },
     { label: "Puntos Verdes", to: "/puntos-verdes" },
     { label: "Denuncias", to: "/denuncias-admin" },
-    { label: "Reportes", to: "/reportes" },
+    { label: "Reportes Recolección", to: "/reportes-recoleccion" },
+    { label: "Reportes Reciclaje", to: "/reportes-reciclaje" },
   ],
   COORDINADOR: [
     { label: "Dashboard", to: "/dashboard" },
@@ -31,7 +32,7 @@ const menuByRole = {
   ],
   AUDITOR: [
     { label: "Dashboard", to: "/dashboard" },
-    { label: "Reportes", to: "/reportes" },
+    { label: "Reportes", to: "/reportes-recoleccion" },
   ],
 };
 

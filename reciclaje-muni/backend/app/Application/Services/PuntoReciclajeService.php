@@ -35,7 +35,37 @@ class PuntoReciclajeService
 
     public function create($data)
     {
-        return PuntoReciclaje::create($data);
+        $punto = PuntoReciclaje::create($data);
+
+        $tiposMaterial = DB::table('reciclaje.tipo_material')
+            ->select('id')
+            ->get();
+
+        $cantidadTipos = $tiposMaterial->count();
+
+        if ($cantidadTipos > 0) {
+            $capacidadPorContenedor = round(((float) $punto->capacidad_m3) / $cantidadTipos, 2);
+        } else {
+            $capacidadPorContenedor = 0;
+        }
+
+        $contenedores = [];
+
+        foreach ($tiposMaterial as $tipo) {
+            $contenedores[] = [
+                'id_punto_reciclaje' => $punto->id,
+                'id_tipo_material' => $tipo->id,
+                'porcentaje' => 0,
+                'nivel_actual' => 0,
+                'capacidad_m3' => $capacidadPorContenedor,
+            ];
+        }
+
+        if (!empty($contenedores)) {
+            DB::table('reciclaje.contenedor')->insert($contenedores);
+        }
+
+        return $punto;
     }
 
     public function update($id, $data)

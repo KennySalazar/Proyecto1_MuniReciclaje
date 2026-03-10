@@ -27,6 +27,9 @@ import DenunciasAdmin from "./pages/DenunciasAdmin";
 import SeguimientoDenuncias from "./pages/SeguimientoDenuncias";
 import PuntosVerdesCiudadano from "./pages/PuntosVerdesCiudadano";
 import EstadisticasCiudadano from "./pages/EstadisticasCiudadano";
+import ReportesRecoleccion from "./pages/ReportesRecoleccion";
+import ReportesReciclaje from "./pages/ReportesReciclaje";  
+
 export default function App() {
   return (
     <AuthProvider>
@@ -72,6 +75,8 @@ export default function App() {
             <Route path="/alertas-contenedores" element={<AlertasContenedor />} />
             <Route path="/portal-publico" element={<PortalPublico />} />
             <Route path="/denuncias-admin" element={<DenunciasAdmin />} />
+            <Route path="/reportes-recoleccion" element={<ReportesRecoleccion />} />
+            <Route path="/reportes-reciclaje" element={<ReportesReciclaje />} />
           
 
 

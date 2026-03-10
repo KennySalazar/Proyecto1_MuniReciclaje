@@ -54,3 +54,15 @@ export const getPuntosVerdesPublicos = () => api.get("/portal/puntos-verdes");
 
 export const getEstadisticasPublicas = () =>
   api.get("/portal/estadisticas");
+
+export const getReporteMaterialPorTipo = () =>
+  api.get("/reportes-reciclaje/material-por-tipo");
+
+export const getReportePuntosVerdesActivos = () =>
+  api.get("/reportes-reciclaje/puntos-verdes-activos");
+
+export const getReporteTendenciasCiudadanas = () =>
+  api.get("/reportes-reciclaje/tendencias-ciudadanas");
+
+export const getReporteComparativaMateriales = () =>
+  api.get("/reportes-reciclaje/comparativa-materiales");

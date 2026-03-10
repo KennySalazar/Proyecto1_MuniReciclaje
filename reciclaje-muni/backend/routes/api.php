@@ -19,6 +19,8 @@ use App\Http\Controllers\NotificacionEstadoController;
 use App\Http\Controllers\PortalPublicoController;
 use App\Http\Controllers\CiudadanoAuthController;
 use App\Http\Controllers\DenunciaController;
+use App\Http\Controllers\ReporteRecoleccionController;
+use App\Http\Controllers\ReportesReciclajeController;
 
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -103,5 +105,19 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/vaciados-programados', [VaciadoProgramadoController::class, 'index']);
         Route::post('/vaciados-programados', [VaciadoProgramadoController::class, 'store']);
         Route::patch('/vaciados-programados/{id}/estado', [VaciadoProgramadoController::class, 'updateEstado']);
+    });
+
+    Route::middleware(['role:ADMIN, AUDITOR'])->group(function () {
+        Route::get('/reportes/recoleccion/por-periodo', [ReporteRecoleccionController::class, 'porPeriodo']);
+        Route::get('/reportes/recoleccion/por-zona', [ReporteRecoleccionController::class, 'porZona']);
+        Route::get('/reportes/recoleccion/por-colonia', [ReporteRecoleccionController::class, 'porColonia']);
+        Route::get('/reportes/recoleccion/por-ruta', [ReporteRecoleccionController::class, 'porRuta']);
+        Route::get('/reportes/recoleccion/comparativa-mensual', [ReporteRecoleccionController::class, 'comparativaMensual']);
+        Route::get('/reportes/recoleccion/comparativa-anual', [ReporteRecoleccionController::class, 'comparativaAnual']);
+
+        Route::get('/reportes-reciclaje/material-por-tipo', [ReportesReciclajeController::class, 'materialPorTipo']);
+        Route::get('/reportes-reciclaje/puntos-verdes-activos', [ReportesReciclajeController::class, 'puntosVerdesActivos']);
+        Route::get('/reportes-reciclaje/tendencias-ciudadanas', [ReportesReciclajeController::class, 'tendenciasCiudadanas']);
+        Route::get('/reportes-reciclaje/comparativa-materiales', [ReportesReciclajeController::class, 'comparativaMateriales']);
     });
 });
