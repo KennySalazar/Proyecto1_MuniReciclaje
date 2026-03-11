@@ -161,7 +161,7 @@ class MonitoreoService
 
 
             //PROBABILIDAD DE INCIDENCIA 
-            $prob = 0.01;
+            $prob = 0.20;
             $saleIncidencia = (lcg_value() < $prob);
 
 

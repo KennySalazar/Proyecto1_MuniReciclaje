@@ -18,11 +18,11 @@ export default function Asignaciones() {
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
 
-  // form
+  
   const [idCamion, setIdCamion] = useState("");
   const [idRuta, setIdRuta] = useState("");
   const [idConductor, setIdConductor] = useState("");
-  const [fecha, setFecha] = useState(""); // YYYY-MM-DD
+  const [fecha, setFecha] = useState(""); 
 
   const [editingId, setEditingId] = useState(null);
   const isEditing = useMemo(() => editingId !== null, [editingId]);
@@ -130,7 +130,6 @@ export default function Asignaciones() {
     }
   };
 
-  // helpers para mostrar nombres
   const camionLabel = (id) => {
     const c = camiones.find((x) => String(x.id) === String(id));
     if (!c) return `#${id}`;

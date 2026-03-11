@@ -32,7 +32,7 @@ export default function DenunciasAdmin() {
   const [uploadingFoto, setUploadingFoto] = useState(false);
 
   const [filtroEstado, setFiltroEstado] = useState("TODAS");
-  const [textoBusqueda, setTextoBusqueda] = useState("");
+
 
   const [formAsignacion, setFormAsignacion] = useState({
     id_formulario: "",
@@ -155,20 +155,11 @@ export default function DenunciasAdmin() {
       );
     }
 
-    if (textoBusqueda.trim()) {
-      const txt = textoBusqueda.toLowerCase();
-      data = data.filter((d) =>
-        String(d.id).includes(txt) ||
-        String(d.descripcion || "").toLowerCase().includes(txt) ||
-        String(d.nombre || "").toLowerCase().includes(txt) ||
-        String(d.apellido || "").toLowerCase().includes(txt) ||
-        String(d.email || "").toLowerCase().includes(txt)
-      );
-    }
+
 
     data.sort((a, b) => Number(b.id) - Number(a.id));
     return data;
-  }, [denuncias, filtroEstado, textoBusqueda]);
+  }, [denuncias, filtroEstado]);
 
   const resumenEstados = useMemo(() => {
     const base = {
@@ -232,12 +223,7 @@ export default function DenunciasAdmin() {
           <option value="CERRADA">Cerradas</option>
         </select>
 
-        <input
-          style={inpDark}
-          placeholder="Buscar por ID, descripción, nombre o email"
-          value={textoBusqueda}
-          onChange={(e) => setTextoBusqueda(e.target.value)}
-        />
+      
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "420px 1fr", gap: 16 }}>
@@ -517,14 +503,14 @@ const filterBar = {
 
 const card = {
   background: "rgba(255,255,255,0.06)",
-  border: "1px solid rgba(255,255,255,0.10)",
+  border: "1px solid rgba(221, 16, 16, 0.87)",
   borderRadius: 14,
   padding: 14,
 };
 
 const item = {
   background: "rgba(255,255,255,0.04)",
-  border: "1px solid rgba(255,255,255,0.08)",
+  border: "1px solid rgba(131, 238, 16, 0.94)",
   borderRadius: 14,
   padding: 16,
 };
@@ -546,7 +532,7 @@ const detailGrid = {
 
 const infoBox = {
   background: "rgba(255,255,255,0.03)",
-  border: "1px solid rgba(255,255,255,0.06)",
+  border: "1px solid rgba(232, 217, 13, 0.89)",
   borderRadius: 10,
   padding: 10,
 };
@@ -587,8 +573,8 @@ const inpDark = {
   width: "100%",
   padding: "12px 14px",
   borderRadius: 12,
-  border: "1px solid rgba(255,255,255,0.15)",
-  background: "rgba(255,255,255,0.05)",
+  border: "1px solid rgba(255, 255, 255, 0.99)",
+   background: "#ee4b0a",
   color: "white",
   outline: "none",
 };
