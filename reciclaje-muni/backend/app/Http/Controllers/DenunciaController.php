@@ -22,6 +22,7 @@ class DenunciaController extends Controller
             'latitud' => ['required', 'numeric'],
             'longitud' => ['required', 'numeric'],
             'foto' => ['nullable', 'image', 'max:4096'],
+            'id_zona' => ['required', 'integer', 'exists:zona,id'],
         ]);
 
         return response()->json(

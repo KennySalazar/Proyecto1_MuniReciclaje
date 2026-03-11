@@ -66,7 +66,7 @@ function ClickMap({ onPick }) {
 export default function DenunciaCiudadana() {
   const navigate = useNavigate();
 
-  const [catalogos, setCatalogos] = useState({ tamanos: [] });
+  const [catalogos, setCatalogos] = useState({ tamanos: [], zonas: [] });
   const [misDenuncias, setMisDenuncias] = useState([]);
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(false);
@@ -74,6 +74,7 @@ export default function DenunciaCiudadana() {
   const [form, setForm] = useState({
     descripcion: "",
     id_tamano_basurero: "",
+    id_zona: "",
     latitud: "",
     longitud: "",
     foto: null,
@@ -97,7 +98,7 @@ export default function DenunciaCiudadana() {
         getMisDenuncias(),
       ]);
 
-      setCatalogos(r1.data || { tamanos: [] });
+      setCatalogos(r1.data || { tamanos: [], zonas: [] });
       setMisDenuncias(r2.data?.data ?? r2.data ?? []);
       setMsg("");
     } catch (err) {
@@ -118,6 +119,7 @@ export default function DenunciaCiudadana() {
       const fd = new FormData();
       fd.append("descripcion", form.descripcion);
       fd.append("id_tamano_basurero", form.id_tamano_basurero);
+      fd.append("id_zona", form.id_zona);
       fd.append("latitud", form.latitud);
       fd.append("longitud", form.longitud);
 
@@ -130,6 +132,7 @@ export default function DenunciaCiudadana() {
       setForm({
         descripcion: "",
         id_tamano_basurero: "",
+        id_zona: "",
         latitud: "",
         longitud: "",
         foto: null,
@@ -200,6 +203,20 @@ export default function DenunciaCiudadana() {
                 {catalogos.tamanos?.map((t) => (
                   <option key={t.id} value={t.id}>
                     {textoTamano(t.tipo_nombre)}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                style={inp}
+                value={form.id_zona}
+                onChange={(e) => setForm({ ...form, id_zona: e.target.value })}
+                required
+              >
+                <option value="">Seleccione la zona</option>
+                {catalogos.zonas?.map((z) => (
+                  <option key={z.id} value={z.id}>
+                    {z.nombre}
                   </option>
                 ))}
               </select>
@@ -281,6 +298,15 @@ export default function DenunciaCiudadana() {
             {form.latitud && form.longitud && (
               <div style={{ marginTop: 12, fontSize: 13, opacity: 0.9 }}>
                 Coordenadas seleccionadas: <b>{form.latitud}, {form.longitud}</b>
+              </div>
+            )}
+
+            {form.id_zona && (
+              <div style={{ marginTop: 8, fontSize: 13, opacity: 0.9 }}>
+                Zona seleccionada:{" "}
+                <b>
+                  {catalogos.zonas?.find((z) => String(z.id) === String(form.id_zona))?.nombre || "N/D"}
+                </b>
               </div>
             )}
 

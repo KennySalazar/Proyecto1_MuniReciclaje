@@ -32,6 +32,11 @@ class DenunciaService
                 ->select('id', 'nombre', 'estado', 'disponibilidad')
                 ->orderBy('nombre')
                 ->get(),
+
+            'zonas' => DB::table('reciclaje.zona')
+                ->select('id', 'nombre')
+                ->orderBy('nombre')
+                ->get(),
         ];
     }
 
@@ -56,6 +61,7 @@ class DenunciaService
                 'id_basurero' => $basurero->id,
                 'id_ciudadano' => $usuario?->id_ciudadano,
                 'id_estado_denuncia' => $estadoRecibida->id,
+                'id_zona' => $data['id_zona'],
                 'descripcion' => $data['descripcion'],
                 'fecha_denuncia' => now()->toDateString(),
             ]);
@@ -80,7 +86,6 @@ class DenunciaService
             return $this->detalle($formulario->id);
         });
     }
-
     public function listarCiudadano($idCiudadano)
     {
         return DB::table('reciclaje.formulario as f')

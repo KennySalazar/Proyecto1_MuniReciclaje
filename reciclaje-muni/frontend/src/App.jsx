@@ -29,6 +29,7 @@ import PuntosVerdesCiudadano from "./pages/PuntosVerdesCiudadano";
 import EstadisticasCiudadano from "./pages/EstadisticasCiudadano";
 import ReportesRecoleccion from "./pages/ReportesRecoleccion";
 import ReportesReciclaje from "./pages/ReportesReciclaje";  
+import ReportesDenuncias from "./pages/ReportesDenuncias";
 
 export default function App() {
   return (
@@ -77,6 +78,7 @@ export default function App() {
             <Route path="/denuncias-admin" element={<DenunciasAdmin />} />
             <Route path="/reportes-recoleccion" element={<ReportesRecoleccion />} />
             <Route path="/reportes-reciclaje" element={<ReportesReciclaje />} />
+            <Route path="/reportes-denuncias" element={<ReportesDenuncias />} />
           
 
 

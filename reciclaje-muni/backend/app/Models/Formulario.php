@@ -13,6 +13,7 @@ class Formulario extends Model
         'id_basurero',
         'id_ciudadano',
         'id_estado_denuncia',
+        'id_zona',
         'descripcion',
         'fecha_denuncia',
     ];

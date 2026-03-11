@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   asignarCuadrillaDenuncia,
   cambiarEstadoDenuncia,
@@ -12,11 +12,27 @@ function fotoUrl(path) {
   return `http://127.0.0.1:8000/storage/${path}`;
 }
 
+function colorEstado(estado) {
+  const e = String(estado || "").toUpperCase();
+  if (e === "RECIBIDA") return "#3b82f6";
+  if (e === "EN_REVISION") return "#f59e0b";
+  if (e === "ASIGNADA") return "#8b5cf6";
+  if (e === "EN_ATENCION") return "#f97316";
+  if (e === "ATENDIDA") return "#22c55e";
+  if (e === "CERRADA") return "#94a3b8";
+  return "#64748b";
+}
+
+
 export default function DenunciasAdmin() {
   const [denuncias, setDenuncias] = useState([]);
   const [catalogos, setCatalogos] = useState({ estados: [], cuadrillas: [] });
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(true);
+  const [uploadingFoto, setUploadingFoto] = useState(false);
+
+  const [filtroEstado, setFiltroEstado] = useState("TODAS");
+  const [textoBusqueda, setTextoBusqueda] = useState("");
 
   const [formAsignacion, setFormAsignacion] = useState({
     id_formulario: "",
@@ -26,7 +42,11 @@ export default function DenunciasAdmin() {
     observacion: "",
   });
 
-  const [uploadingFoto, setUploadingFoto] = useState(false);
+  const denunciaSeleccionada = useMemo(() => {
+    return denuncias.find((d) => String(d.id) === String(formAsignacion.id_formulario)) || null;
+  }, [denuncias, formAsignacion.id_formulario]);
+
+  const denunciaCerrada = String(denunciaSeleccionada?.nombre_estado || "").toUpperCase() === "CERRADA";
 
   const load = async (silent = false) => {
     try {
@@ -50,16 +70,21 @@ export default function DenunciasAdmin() {
 
   useEffect(() => {
     load();
-
     const t = setInterval(() => load(true), 5000);
     return () => clearInterval(t);
   }, []);
 
   const cambiarEstado = async (id, idEstado) => {
+    const denuncia = denuncias.find((d) => d.id === id);
+    if (String(denuncia?.nombre_estado || "").toUpperCase() === "CERRADA") {
+      setMsg("La denuncia está cerrada y ya no puede cambiar de estado.");
+      return;
+    }
+
     try {
       await cambiarEstadoDenuncia(id, { id_estado_denuncia: Number(idEstado) });
       await load(true);
-      setMsg("✅ Estado actualizado");
+      setMsg("Estado actualizado");
     } catch (err) {
       setMsg(err?.response?.data?.message || "No se pudo actualizar el estado");
     }
@@ -67,6 +92,11 @@ export default function DenunciasAdmin() {
 
   const asignar = async (e) => {
     e.preventDefault();
+
+    if (denunciaCerrada) {
+      setMsg("No se puede asignar cuadrilla a una denuncia cerrada.");
+      return;
+    }
 
     try {
       await asignarCuadrillaDenuncia({
@@ -84,14 +114,19 @@ export default function DenunciasAdmin() {
       });
 
       await load(true);
-      setMsg("✅ Cuadrilla asignada");
+      setMsg("Cuadrilla asignada");
     } catch (err) {
       setMsg(err?.response?.data?.message || "No se pudo asignar la cuadrilla");
     }
   };
 
-  const handleSubirFoto = async (idFormulario, tipoFoto, file) => {
+  const handleSubirFoto = async (idFormulario, tipoFoto, file, estadoActual) => {
     if (!file) return;
+
+    if (String(estadoActual || "").toUpperCase() === "CERRADA") {
+      setMsg("La denuncia está cerrada y ya no permite subir nuevas fotos.");
+      return;
+    }
 
     try {
       setUploadingFoto(true);
@@ -103,7 +138,7 @@ export default function DenunciasAdmin() {
 
       await subirFotoDenuncia(idFormulario, fd);
       await load(true);
-      setMsg(`✅ Foto ${tipoFoto.toLowerCase()} subida correctamente`);
+      setMsg(`Foto ${tipoFoto.toLowerCase()} subida correctamente`);
     } catch (err) {
       setMsg(err?.response?.data?.message || "No se pudo subir la foto");
     } finally {
@@ -111,11 +146,99 @@ export default function DenunciasAdmin() {
     }
   };
 
+  const denunciasFiltradas = useMemo(() => {
+    let data = [...denuncias];
+
+    if (filtroEstado !== "TODAS") {
+      data = data.filter(
+        (d) => String(d.nombre_estado || "").toUpperCase() === filtroEstado
+      );
+    }
+
+    if (textoBusqueda.trim()) {
+      const txt = textoBusqueda.toLowerCase();
+      data = data.filter((d) =>
+        String(d.id).includes(txt) ||
+        String(d.descripcion || "").toLowerCase().includes(txt) ||
+        String(d.nombre || "").toLowerCase().includes(txt) ||
+        String(d.apellido || "").toLowerCase().includes(txt) ||
+        String(d.email || "").toLowerCase().includes(txt)
+      );
+    }
+
+    data.sort((a, b) => Number(b.id) - Number(a.id));
+    return data;
+  }, [denuncias, filtroEstado, textoBusqueda]);
+
+  const resumenEstados = useMemo(() => {
+    const base = {
+      TOTAL: denuncias.length,
+      RECIBIDA: 0,
+      EN_REVISION: 0,
+      ASIGNADA: 0,
+      EN_ATENCION: 0,
+      ATENDIDA: 0,
+      CERRADA: 0,
+    };
+
+    denuncias.forEach((d) => {
+      const e = String(d.nombre_estado || "").toUpperCase();
+      if (base[e] !== undefined) base[e] += 1;
+    });
+
+    return base;
+  }, [denuncias]);
+
   return (
     <div style={{ padding: 24, color: "white" }}>
-      <h1 style={{ marginTop: 0 }}>Gestión de Denuncias</h1>
+      <div style={headerRow}>
+        <div>
+          <h1 style={{ marginTop: 0, marginBottom: 8 }}>Gestión de Denuncias</h1>
+          <p style={{ opacity: 0.85, margin: 0 }}>
+            Administrá estados, asignaciones de cuadrilla y evidencia fotográfica.
+          </p>
+        </div>
+
+        <button onClick={() => load()} style={btnSecondary}>
+          Refrescar
+        </button>
+      </div>
+
       {msg && <div style={msgBox}>{msg}</div>}
       {loading && <div style={{ marginBottom: 12 }}>Cargando denuncias...</div>}
+
+      <div style={kpiGrid}>
+        <KPI label="Total" value={resumenEstados.TOTAL} />
+        <KPI label="Recibidas" value={resumenEstados.RECIBIDA} color="#3b82f6" />
+        <KPI label="En revisión" value={resumenEstados.EN_REVISION} color="#f59e0b" />
+        <KPI label="Asignadas" value={resumenEstados.ASIGNADA} color="#8b5cf6" />
+        <KPI label="En atención" value={resumenEstados.EN_ATENCION} color="#f97316" />
+        <KPI label="Atendidas" value={resumenEstados.ATENDIDA} color="#22c55e" />
+        <KPI label="Cerradas" value={resumenEstados.CERRADA} color="#94a3b8" />
+      </div>
+
+      <div style={filterBar}>
+        <select
+          style={inpDark}
+          value={filtroEstado}
+          onChange={(e) => setFiltroEstado(e.target.value)}
+        >
+          <option value="TODAS">Todas las denuncias</option>
+          <option value="RECIBIDA">Recibidas</option>
+          <option value="EN_REVISION">En revisión</option>
+          <option value="ASIGNADA">Asignadas</option>
+          <option value="EN_ATENCION">En atención</option>
+          <option value="ATENDIDA">Atendidas</option>
+          <option value="CERRADA">Cerradas</option>
+        </select>
+
+        <input
+          style={inpDark}
+          placeholder="Buscar por ID, descripción, nombre o email"
+          value={textoBusqueda}
+          onChange={(e) => setTextoBusqueda(e.target.value)}
+        />
+      </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "420px 1fr", gap: 16 }}>
         <div style={card}>
@@ -131,11 +254,13 @@ export default function DenunciasAdmin() {
               required
             >
               <option value="">Seleccione denuncia</option>
-              {denuncias.map((d) => (
-                <option key={d.id} value={d.id}>
-                  Denuncia #{d.id}
-                </option>
-              ))}
+              {denuncias
+                .filter((d) => String(d.nombre_estado || "").toUpperCase() !== "CERRADA")
+                .map((d) => (
+                  <option key={d.id} value={d.id}>
+                    Denuncia #{d.id} - {d.nombre_estado}
+                  </option>
+                ))}
             </select>
 
             <select
@@ -145,6 +270,7 @@ export default function DenunciasAdmin() {
                 setFormAsignacion({ ...formAsignacion, id_cuadrilla: e.target.value })
               }
               required
+              disabled={denunciaCerrada}
             >
               <option value="">Seleccione cuadrilla</option>
               {catalogos.cuadrillas?.map((c) => (
@@ -161,6 +287,7 @@ export default function DenunciasAdmin() {
               onChange={(e) =>
                 setFormAsignacion({ ...formAsignacion, fecha_programada: e.target.value })
               }
+              disabled={denunciaCerrada}
             />
 
             <input
@@ -170,6 +297,7 @@ export default function DenunciasAdmin() {
               onChange={(e) =>
                 setFormAsignacion({ ...formAsignacion, recursos_estimados: e.target.value })
               }
+              disabled={denunciaCerrada}
             />
 
             <input
@@ -179,111 +307,123 @@ export default function DenunciasAdmin() {
               onChange={(e) =>
                 setFormAsignacion({ ...formAsignacion, observacion: e.target.value })
               }
+              disabled={denunciaCerrada}
             />
 
-            <button style={btn}>Asignar cuadrilla</button>
+            {denunciaSeleccionada && (
+              <div style={infoMini}>
+                <div><b>Denuncia:</b> #{denunciaSeleccionada.id}</div>
+                <div><b>Estado actual:</b> {denunciaSeleccionada.nombre_estado}</div>
+                {denunciaCerrada && (
+                  <div style={{ color: "#fca5a5", marginTop: 6 }}>
+                    Esta denuncia está cerrada y ya no admite asignaciones.
+                  </div>
+                )}
+              </div>
+            )}
+
+            <button style={btn} disabled={denunciaCerrada}>
+              Asignar cuadrilla
+            </button>
           </form>
         </div>
 
         <div style={card}>
-          <h3 style={{ marginTop: 0 }}>Denuncias registradas</h3>
+          <h3 style={{ marginTop: 0 }}>
+            Denuncias registradas ({denunciasFiltradas.length})
+          </h3>
 
-          <div style={{ display: "grid", gap: 12 }}>
-            {denuncias.map((d) => (
-              <div key={d.id} style={item}>
-                <div><b>Denuncia #{d.id}</b></div>
-                <div>Estado actual: {d.nombre_estado}</div>
-                <div>Ciudadano: {d.nombre || "N/D"} {d.apellido || ""}</div>
-                <div>Email: {d.email || "N/D"}</div>
-                <div>Teléfono: {d.telefono || "N/D"}</div>
-                <div>Tamaño: {d.tamano || "N/D"}</div>
-                <div>Fecha: {d.fecha_denuncia}</div>
-                <div>Descripción: {d.descripcion}</div>
-                <div>Cuadrilla asignada: {d.cuadrilla || "Sin asignar"}</div>
-                <div>Fecha programada: {d.fecha_programada || "No programada"}</div>
-                <div>Recursos estimados: {d.recursos_estimados || "N/D"}</div>
-                <div>Observación: {d.observacion || "N/D"}</div>
+          <div style={{ display: "grid", gap: 14 }}>
+            {denunciasFiltradas.map((d) => {
+              const cerrada = String(d.nombre_estado || "").toUpperCase() === "CERRADA";
 
-               <div style={{ marginTop: 12 }}>
-                <b>Foto reportada por ciudadano</b>
-                {fotoUrl(d.foto_evidencia) ? (
-                  <img
-                    src={fotoUrl(d.foto_evidencia)}
-                    alt="Evidencia"
-                    style={imgStyle}
-                  />
-                ) : (
-                  <div style={emptyMini}>Sin foto de evidencia</div>
-                )}
-              </div>
+              return (
+                <div key={d.id} style={item}>
+                  <div style={topDenuncia}>
+                    <div>
+                      <div style={{ fontSize: 20, fontWeight: 900 }}>
+                        Denuncia #{d.id}
+                      </div>
+                      <div style={{ opacity: 0.82, marginTop: 4 }}>
+                        {d.fecha_denuncia}
+                      </div>
+                    </div>
 
-                <div style={{ marginTop: 12 }}>
-                  <b>Foto antes</b>
-                  {fotoUrl(d.foto_antes) ? (
-                    <img
+                    <div
+                      style={{
+                        background: colorEstado(d.nombre_estado),
+                        color: "white",
+                        padding: "8px 12px",
+                        borderRadius: 999,
+                        fontWeight: 800,
+                        fontSize: 12,
+                      }}
+                    >
+                      {d.nombre_estado}
+                    </div>
+                  </div>
+
+                  <div style={detailGrid}>
+                    <Info label="Ciudadano" value={`${d.nombre || "N/D"} ${d.apellido || ""}`} />
+                    <Info label="Email" value={d.email || "N/D"} />
+                    <Info label="Teléfono" value={d.telefono || "N/D"} />
+                    <Info label="Tamaño" value={d.tamano || "N/D"} />
+                    <Info label="Cuadrilla" value={d.cuadrilla || "Sin asignar"} />
+                    <Info label="Fecha programada" value={d.fecha_programada || "No programada"} />
+                    <Info label="Recursos" value={d.recursos_estimados || "N/D"} />
+                    <Info label="Observación" value={d.observacion || "N/D"} />
+                  </div>
+
+                  <div style={{ marginTop: 12 }}>
+                    <b>Descripción</b>
+                    <div style={descBox}>{d.descripcion || "Sin descripción"}</div>
+                  </div>
+
+                  <div style={photoGrid}>
+                    <PhotoBlock title="Foto reportada por ciudadano" src={fotoUrl(d.foto_evidencia)} empty="Sin foto de evidencia" />
+                    <PhotoUploadBlock
+                      title="Foto antes"
                       src={fotoUrl(d.foto_antes)}
-                      alt="Antes"
-                      style={imgStyle}
+                      empty="Sin foto antes"
+                      disabled={uploadingFoto || cerrada}
+                      onChange={(file) => handleSubirFoto(d.id, "ANTES", file, d.nombre_estado)}
                     />
-                  ) : (
-                    <div style={emptyMini}>Sin foto antes</div>
-                  )}
-
-                  <input
-                    type="file"
-                    accept="image/*"
-                    style={{ marginTop: 8 }}
-                    onChange={(e) =>
-                      handleSubirFoto(d.id, "ANTES", e.target.files?.[0] || null)
-                    }
-                    disabled={uploadingFoto}
-                  />
-                </div>
-
-                <div style={{ marginTop: 12 }}>
-                  <b>Foto después</b>
-                  {fotoUrl(d.foto_despues) ? (
-                    <img
+                    <PhotoUploadBlock
+                      title="Foto después"
                       src={fotoUrl(d.foto_despues)}
-                      alt="Después"
-                      style={imgStyle}
+                      empty="Sin foto después"
+                      disabled={uploadingFoto || cerrada}
+                      onChange={(file) => handleSubirFoto(d.id, "DESPUES", file, d.nombre_estado)}
                     />
-                  ) : (
-                    <div style={emptyMini}>Sin foto después</div>
-                  )}
+                  </div>
 
-                  <input
-                    type="file"
-                    accept="image/*"
-                    style={{ marginTop: 8 }}
-                    onChange={(e) =>
-                      handleSubirFoto(d.id, "DESPUES", e.target.files?.[0] || null)
-                    }
-                    disabled={uploadingFoto}
-                  />
-                </div>
-
-                <div style={{ marginTop: 12 }}>
-                  <select
-                    style={inp}
-                    defaultValue=""
-                    onChange={(e) => {
-                      if (e.target.value) cambiarEstado(d.id, e.target.value);
-                    }}
-                  >
-                    <option value="">Cambiar estado</option>
-                    {catalogos.estados?.map((es) => (
-                      <option key={es.id} value={es.id}>
-                        {es.nombre_estado}
+                  <div style={{ marginTop: 14 }}>
+                    <select
+                      style={cerrada ? inpDisabled : inp}
+                      defaultValue=""
+                      disabled={cerrada}
+                      onChange={(e) => {
+                        if (e.target.value) cambiarEstado(d.id, e.target.value);
+                      }}
+                    >
+                      <option value="">
+                        {cerrada ? "Denuncia cerrada" : "Cambiar estado"}
                       </option>
-                    ))}
-                  </select>
+                      {catalogos.estados
+                        ?.filter((es) => String(es.nombre_estado || "").toUpperCase() !== "CERRADA" || !cerrada)
+                        .map((es) => (
+                          <option key={es.id} value={es.id}>
+                            {es.nombre_estado}
+                          </option>
+                        ))}
+                    </select>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
 
-            {!loading && denuncias.length === 0 && (
-              <div>No hay denuncias registradas.</div>
+            {!loading && denunciasFiltradas.length === 0 && (
+              <div style={emptyMini}>No hay denuncias para este filtro.</div>
             )}
           </div>
         </div>
@@ -292,9 +432,92 @@ export default function DenunciasAdmin() {
   );
 }
 
+function KPI({ label, value, color = "#334155" }) {
+  return (
+    <div
+      style={{
+        background: "rgba(255,255,255,0.06)",
+        border: "1px solid rgba(255,255,255,0.10)",
+        borderTop: `4px solid ${color}`,
+        borderRadius: 14,
+        padding: 14,
+      }}
+    >
+      <div style={{ opacity: 0.82, fontSize: 13 }}>{label}</div>
+      <div style={{ fontSize: 28, fontWeight: 900, marginTop: 6 }}>{value}</div>
+    </div>
+  );
+}
+
+function Info({ label, value }) {
+  return (
+    <div style={infoBox}>
+      <div style={{ opacity: 0.7, fontSize: 12 }}>{label}</div>
+      <div style={{ marginTop: 4, fontWeight: 700 }}>{value}</div>
+    </div>
+  );
+}
+
+function PhotoBlock({ title, src, empty }) {
+  return (
+    <div style={photoCard}>
+      <b>{title}</b>
+      {src ? (
+        <img src={src} alt={title} style={imgStyle} />
+      ) : (
+        <div style={emptyMini}>{empty}</div>
+      )}
+    </div>
+  );
+}
+
+function PhotoUploadBlock({ title, src, empty, disabled, onChange }) {
+  return (
+    <div style={photoCard}>
+      <b>{title}</b>
+      {src ? (
+        <img src={src} alt={title} style={imgStyle} />
+      ) : (
+        <div style={emptyMini}>{empty}</div>
+      )}
+
+      <input
+        type="file"
+        accept="image/*"
+        style={{ marginTop: 8 }}
+        onChange={(e) => onChange(e.target.files?.[0] || null)}
+        disabled={disabled}
+      />
+    </div>
+  );
+}
+
+const headerRow = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 12,
+  flexWrap: "wrap",
+  marginBottom: 16,
+};
+
+const kpiGrid = {
+  display: "grid",
+  gridTemplateColumns: "repeat(7, minmax(120px, 1fr))",
+  gap: 12,
+  marginBottom: 16,
+};
+
+const filterBar = {
+  display: "grid",
+  gridTemplateColumns: "260px 1fr",
+  gap: 12,
+  marginBottom: 16,
+};
+
 const card = {
   background: "rgba(255,255,255,0.06)",
-  border: "1px solid rgba(244, 14, 14, 0.86)",
+  border: "1px solid rgba(255,255,255,0.10)",
   borderRadius: 14,
   padding: 14,
 };
@@ -302,8 +525,52 @@ const card = {
 const item = {
   background: "rgba(255,255,255,0.04)",
   border: "1px solid rgba(255,255,255,0.08)",
+  borderRadius: 14,
+  padding: 16,
+};
+
+const topDenuncia = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-start",
+  gap: 12,
+  flexWrap: "wrap",
+};
+
+const detailGrid = {
+  display: "grid",
+  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+  gap: 10,
+  marginTop: 14,
+};
+
+const infoBox = {
+  background: "rgba(255,255,255,0.03)",
+  border: "1px solid rgba(255,255,255,0.06)",
   borderRadius: 10,
+  padding: 10,
+};
+
+const photoGrid = {
+  display: "grid",
+  gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+  gap: 12,
+  marginTop: 14,
+};
+
+const photoCard = {
+  background: "rgba(255,255,255,0.03)",
+  border: "1px solid rgba(255,255,255,0.06)",
+  borderRadius: 12,
+  padding: 10,
+};
+
+const descBox = {
+  marginTop: 8,
   padding: 12,
+  borderRadius: 10,
+  background: "rgba(255,255,255,0.03)",
+  border: "1px solid rgba(255,255,255,0.06)",
 };
 
 const inp = {
@@ -316,6 +583,22 @@ const inp = {
   outline: "none",
 };
 
+const inpDark = {
+  width: "100%",
+  padding: "12px 14px",
+  borderRadius: 12,
+  border: "1px solid rgba(255,255,255,0.15)",
+  background: "rgba(255,255,255,0.05)",
+  color: "white",
+  outline: "none",
+};
+
+const inpDisabled = {
+  ...inp,
+  background: "rgba(148,163,184,0.30)",
+  cursor: "not-allowed",
+};
+
 const btn = {
   padding: "12px 14px",
   borderRadius: 12,
@@ -323,6 +606,16 @@ const btn = {
   background: "#22c55e",
   color: "white",
   fontWeight: 800,
+  cursor: "pointer",
+};
+
+const btnSecondary = {
+  padding: "12px 14px",
+  borderRadius: 12,
+  border: "1px solid rgba(255,255,255,0.18)",
+  background: "rgba(255,255,255,0.06)",
+  color: "white",
+  fontWeight: 700,
   cursor: "pointer",
 };
 
@@ -350,4 +643,11 @@ const emptyMini = {
   background: "rgba(255,255,255,0.04)",
   border: "1px dashed rgba(255,255,255,0.10)",
   opacity: 0.85,
+};
+
+const infoMini = {
+  padding: 10,
+  borderRadius: 10,
+  background: "rgba(255,255,255,0.04)",
+  border: "1px solid rgba(255,255,255,0.08)",
 };

@@ -7,10 +7,21 @@ const menuByRole = {
     { label: "Dashboard", to: "/dashboard" },
     { label: "Usuarios", to: "/usuarios" },
     { label: "Rutas", to: "/rutas" },
+    { label: "Camiones", to: "/camiones" },
+    { label: "Asignaciones", to: "/asignaciones" },
+    { label: "Generación", to: "/generacion" },
+    { label: "Monitoreo", to: "/monitoreo" },
+    { label: "Incidencias", to: "/incidencias" },
     { label: "Puntos Verdes", to: "/puntos-verdes" },
+    { label: "Entregas Reciclaje", to: "/entregas-reciclaje" },
+    { label: "Contenedores Estado", to: "/contenedores-estado" },
+    { label: "Alertas Contenedores", to: "/alertas-contenedores" },
+    { label: "Vaciados Programados", to: "/vaciados-programados" },
     { label: "Denuncias", to: "/denuncias-admin" },
+    { label: "Reportes Estratégicos", to: "/reportes" },
     { label: "Reportes Recolección", to: "/reportes-recoleccion" },
     { label: "Reportes Reciclaje", to: "/reportes-reciclaje" },
+    { label: "Reportes Denuncias", to: "/reportes-denuncias" },
   ],
   COORDINADOR: [
     { label: "Dashboard", to: "/dashboard" },
@@ -32,7 +43,9 @@ const menuByRole = {
   ],
   AUDITOR: [
     { label: "Dashboard", to: "/dashboard" },
-    { label: "Reportes", to: "/reportes-recoleccion" },
+    { label: "Reportes Recolección", to: "/reportes-recoleccion" },
+    { label: "Reportes Reciclaje", to: "/reportes-reciclaje" },
+    { label: "Reportes Denuncias", to: "/reportes-denuncias" },
   ],
 };
 
@@ -112,7 +125,7 @@ export default function Dashboard() {
             style={{
               padding: "8px 14px",
               borderRadius: 10,
-              border: "1px solid rgba(255,255,255,0.2)",
+              border: "1px solid rgba(168, 229, 14, 0.91)",
               background: "transparent",
               color: "white",
               cursor: "pointer",
@@ -130,18 +143,6 @@ export default function Dashboard() {
               <h1 style={{ marginTop: 0 }}>Dashboard</h1>
               <p style={{ opacity: 0.85 }}>Bienvenido al sistema municipal.</p>
 
-              {user?.rol === "COORDINADOR" && (
-                <div style={card}>
-                  <h3 style={{ marginTop: 0 }}>Acciones del Coordinador</h3>
-                  <ul style={{ margin: 0, paddingLeft: 18, opacity: 0.9 }}>
-                    <li>Planificación de rutas de recolección</li>
-                    <li>Asignación de camiones y conductores</li>
-                    <li>Monitoreo en tiempo real de recolección</li>
-                    <li>Resolución de incidencias</li>
-                    <li>Reportes operativos</li>
-                  </ul>
-                </div>
-              )}
             </>
           )}
         </div>
@@ -158,10 +159,3 @@ const linkStyle = {
   display: "block",
 };
 
-const card = {
-  marginTop: 16,
-  padding: 16,
-  borderRadius: 14,
-  background: "rgba(255,255,255,0.06)",
-  border: "1px solid rgba(255,255,255,0.10)",
-};

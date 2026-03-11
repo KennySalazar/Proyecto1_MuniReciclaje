@@ -21,6 +21,7 @@ use App\Http\Controllers\CiudadanoAuthController;
 use App\Http\Controllers\DenunciaController;
 use App\Http\Controllers\ReporteRecoleccionController;
 use App\Http\Controllers\ReportesReciclajeController;
+use App\Http\Controllers\ReportesDenunciasController;
 
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -56,7 +57,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/camiones/{id}', [CamionController::class, 'destroy']);
     });
 
-    Route::middleware(['role:COORDINADOR'])->group(function () {
+    Route::middleware(['role:ADMIN,COORDINADOR'])->group(function () {
         Route::get('/rutas', [RutaController::class, 'index']);
         Route::post('/rutas', [RutaController::class, 'store']);
 
@@ -107,7 +108,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::patch('/vaciados-programados/{id}/estado', [VaciadoProgramadoController::class, 'updateEstado']);
     });
 
-    Route::middleware(['role:ADMIN, AUDITOR'])->group(function () {
+    Route::middleware(['role:ADMIN,AUDITOR'])->group(function () {
         Route::get('/reportes/recoleccion/por-periodo', [ReporteRecoleccionController::class, 'porPeriodo']);
         Route::get('/reportes/recoleccion/por-zona', [ReporteRecoleccionController::class, 'porZona']);
         Route::get('/reportes/recoleccion/por-colonia', [ReporteRecoleccionController::class, 'porColonia']);
@@ -119,5 +120,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/reportes-reciclaje/puntos-verdes-activos', [ReportesReciclajeController::class, 'puntosVerdesActivos']);
         Route::get('/reportes-reciclaje/tendencias-ciudadanas', [ReportesReciclajeController::class, 'tendenciasCiudadanas']);
         Route::get('/reportes-reciclaje/comparativa-materiales', [ReportesReciclajeController::class, 'comparativaMateriales']);
+
+        Route::get('/reportes/denuncias/resumen', [ReportesDenunciasController::class, 'resumen']);
+        Route::get('/reportes/denuncias/tiempo-promedio', [ReportesDenunciasController::class, 'tiempoPromedio']);
+        Route::get('/reportes/denuncias/por-zona', [ReportesDenunciasController::class, 'porZona']);
     });
 });

@@ -511,7 +511,7 @@ const card = {
 
 const kpiCard = {
   background: "rgba(255,255,255,0.06)",
-  border: "1px solid rgba(230, 16, 16, 0.86)",
+  border: "1px solid rgba(205, 246, 2, 0.9)",
   borderRadius: 14,
   padding: 14,
 };
