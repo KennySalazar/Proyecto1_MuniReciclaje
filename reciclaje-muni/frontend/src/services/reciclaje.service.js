@@ -66,3 +66,10 @@ export const getReporteTendenciasCiudadanas = () =>
 
 export const getReporteComparativaMateriales = () =>
   api.get("/reportes-reciclaje/comparativa-materiales");
+
+export const getUsuariosSistema = () => api.get("/usuarios");
+export const getRolesDisponibles = () => api.get("/usuarios/roles-disponibles");
+export const getCiudadanosRegistrados = () => api.get("/usuarios/ciudadanos-registrados");
+export const createUsuarioSistema = (payload) => api.post("/usuarios", payload);
+export const updateUsuarioSistema = (id, payload) => api.put(`/usuarios/${id}`, payload);
+export const deleteUsuarioSistema = (id) => api.delete(`/usuarios/${id}`);

@@ -22,6 +22,7 @@ use App\Http\Controllers\DenunciaController;
 use App\Http\Controllers\ReporteRecoleccionController;
 use App\Http\Controllers\ReportesReciclajeController;
 use App\Http\Controllers\ReportesDenunciasController;
+use App\Http\Controllers\UserController;
 
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -124,5 +125,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/reportes/denuncias/resumen', [ReportesDenunciasController::class, 'resumen']);
         Route::get('/reportes/denuncias/tiempo-promedio', [ReportesDenunciasController::class, 'tiempoPromedio']);
         Route::get('/reportes/denuncias/por-zona', [ReportesDenunciasController::class, 'porZona']);
+    });
+
+    Route::middleware(['role:ADMIN'])->group(function () {
+        Route::get('/usuarios', [UserController::class, 'index']);
+        Route::get('/usuarios/roles-disponibles', [UserController::class, 'rolesDisponibles']);
+        Route::get('/usuarios/ciudadanos-registrados', [UserController::class, 'ciudadanosRegistrados']);
+        Route::post('/usuarios', [UserController::class, 'store']);
+        Route::put('/usuarios/{id}', [UserController::class, 'update']);
+        Route::delete('/usuarios/{id}', [UserController::class, 'destroy']);
     });
 });
